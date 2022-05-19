@@ -27,7 +27,6 @@ router.post("", authUser, (req, res, next) => {
 
 
 router.put("/:id", authUser, (req, res, next) => {
-  // console.error(req.body)
 
   const workout = new Workout({
     _id: req.body.id,
