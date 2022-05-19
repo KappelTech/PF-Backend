@@ -49,7 +49,7 @@ const storage = multer.diskStorage({
 // );
 
 router.post("",authUser,(req, res, next) => {
-  console.error(req)
+  
     // const post = new Post({
     //   title: req.body.title,
     //   content: req.body.content,
