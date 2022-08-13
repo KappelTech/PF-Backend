@@ -115,6 +115,17 @@ router.get("/myWorkouts/:id", (req, res, next) => {
   });
 });
 
+router.get("/personalWorkouts/:id", (req, res, next) => {
+  // console.error(req.params)
+  Workout.find({ creator: req.params.id }).then((workout) => {
+    if (workout) {
+      res.status(200).json(workout);
+    } else {
+      res.status(404).json({ message: "workout not found" });
+    }
+  });
+});
+
 router.get("/programWorkouts/:id", (req, res, next) => {
   // console.error(req.params)
   Workout.find({ program: req.params.id }).then((workout) => {
