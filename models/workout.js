@@ -10,6 +10,7 @@ const workoutSchema = mongoose.Schema({
   {type: mongoose.Schema.Types.ObjectId, 
   ref: "Program",
  },
+ personalWorkout: {type: Boolean},
 });
 
 module.exports = mongoose.model('Workout', workoutSchema);

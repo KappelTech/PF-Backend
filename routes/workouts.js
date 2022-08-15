@@ -117,7 +117,7 @@ router.get("/myWorkouts/:id", (req, res, next) => {
 
 router.get("/personalWorkouts/:id", (req, res, next) => {
   // console.error(req.params)
-  Workout.find({ creator: req.params.id }).then((workout) => {
+  Workout.find({ creator: req.params.id, personalWorkout: true}).then((workout) => {
     if (workout) {
       res.status(200).json(workout);
     } else {
