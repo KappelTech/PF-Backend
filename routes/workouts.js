@@ -8,13 +8,18 @@ const user = require("../models/user")
 const WorkoutItem = require("../models/workoutItem")
 
 router.post("", authUser, (req, res, next) => {
+  console.error(req.body)
+
   const workout = new Workout({
     date: req.body.date,
     name: req.body.name,
     creator: req.userData.userId,
     client: req.body.client ? req.body.client : null,
     program: req.body.program ? req.body.program : null,
+    personalWorkout: req.body.personalWorkout? '1' : '0'
   });
+  console.error(workout)
+
   workout.save().then((createdWorkout) => {
     res.status(201).json({
       message: "Workout Added Successfully",
@@ -116,9 +121,10 @@ router.get("/myWorkouts/:id", (req, res, next) => {
 });
 
 router.get("/personalWorkouts/:id", (req, res, next) => {
-  // console.error(req.params)
-  Workout.find({ creator: req.params.id, personalWorkout: true}).then((workout) => {
+  console.error(req.params)
+  Workout.find({ creator: req.params.id, personalWorkout: '1'}).then((workout) => {
     if (workout) {
+      console.error(workout)
       res.status(200).json(workout);
     } else {
       res.status(404).json({ message: "workout not found" });
