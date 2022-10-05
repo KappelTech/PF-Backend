@@ -196,6 +196,7 @@ router.post("/login", (req, res, next) => {
       { expiresIn: "1h" }
     );
     res.status(200).json({
+      user: fetchedUser,
       active: fetchedUser.active,
       token: token,
       expiresIn: 3600,
