@@ -1,5 +1,5 @@
 const express = require("express");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { authUser, authRole } = require("../middleware/check-auth")
 const { nanoid } = require("nanoid");
