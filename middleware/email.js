@@ -9,7 +9,7 @@ const sendEmail = async (email, subject, text) => {
       secure: true,
       auth: {
         user: 'bkappel16@gmail.com',
-        pass: 'Orangelemons1!',
+        pass: 'pxxrgnnvgfvqlrgg',
       },
     });
     // console.error('transporter', transporter )
