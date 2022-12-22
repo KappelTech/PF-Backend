@@ -43,8 +43,8 @@ router.post("/signup", (req, res, next) => {
         token: code,
       })
       token.save().then((result) => {
-        console.error(result)
-
+        // console.error(result)
+//just saving the file
        
         // console.error(res)
 
