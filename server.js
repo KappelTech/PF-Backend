@@ -1,5 +1,5 @@
 const http = require('http');
-const debug = require('debug')('node-angular')
+const debug = require('debug')('http')
 const app = require('./app')
 // const ionicApp = require('../../Personal/')
 
