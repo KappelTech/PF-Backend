@@ -1,5 +1,5 @@
 const http = require('http');
-const debug = require('debug')('http')
+// const debug = require('debug')('http')
 const app = require('./app')
 // const ionicApp = require('../../Personal/')
 
@@ -36,7 +36,7 @@ const onError = error => {
 const onListening = () => {
   const addr = server.address();
   const bind = typeof addr === "string" ? "pipe" + addr: "port" + port;
-  debug("Listening on" + bind)
+  // debug("Listening on" + bind)
 };
 
 
