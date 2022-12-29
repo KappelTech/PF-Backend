@@ -29,6 +29,11 @@ const userSchema = mongoose.Schema({
     type: Boolean,
     default: false,
     require: true
+  },
+  personalTrainingClient: {
+    type: Boolean,
+    default: false,
+    require: true
   }
 });
 

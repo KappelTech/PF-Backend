@@ -72,13 +72,13 @@ router.get("", (req, res, next) => {
   }
 
   if (req.query.type == 'client') {
-    console.error('HERE')
+    // console.error('HERE')
     query = { client: { $ne: null } }
   }
   if (req.query.type == 'program') {
     query = { program: { $ne: null } }
   }
-  console.error('QUERY:', query)
+  // console.error('QUERY:', query)
   const workoutQuery = Workout.find(query);
   let fetchedWorkouts;
   if (pageSize && currentPage) {
@@ -121,7 +121,7 @@ router.get("/myWorkouts/:id", (req, res, next) => {
 });
 
 router.get("/personalWorkouts/:id", (req, res, next) => {
-  console.error(req.params)
+  // console.error(req.params)
   Workout.find({ creator: req.params.id, personalWorkout: '1'}).then((workout) => {
     if (workout) {
       console.error(workout)
@@ -145,6 +145,9 @@ router.get("/programWorkouts/:id", (req, res, next) => {
 
 router.delete("/:id", authUser, (req, res, next) => {
   Workout.deleteOne({ _id: req.params.id, }).then((result) => {
+    WorkoutItem.deleteMany({"workout": req.params.id}).then((res)=> {
+      console.error(res)
+    })
     // console.error(result)
     if (result.n > 0) {
       res.status(200).json({ message: "Deletion Successful" });

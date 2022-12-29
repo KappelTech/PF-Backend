@@ -44,8 +44,8 @@ router.post("/signup", (req, res, next) => {
       })
       token.save().then((result) => {
         // console.error(result)
-//just saving the file
-       
+        //just saving the file
+
         // console.error(res)
 
         // const message = `http://localhost:3000/api/user/verify/${user.id}/${token.token}`;
@@ -119,15 +119,15 @@ router.get("/verify/:code", (req, res, next) => {
         }
       ).then((verifiedUser) => {
         console.error('verified user:', verifiedUser)
-        if (verifiedUser.nModified > 0){
+        if (verifiedUser.nModified > 0) {
           Token.findByIdAndDelete(token._id).then(deleted => {
             console.error('deleted:', deleted)
           })
-          
-          res.status(200).json({ 
+
+          res.status(200).json({
             message: "Update Successful",
             user: user
-           });
+          });
         } else {
           res.status(401).json({ message: "Something went wrong" });
         }
@@ -137,41 +137,41 @@ router.get("/verify/:code", (req, res, next) => {
   })
 })
 
-router.get("/resendCode/:email", (req,res,next)=> {
+router.get("/resendCode/:email", (req, res, next) => {
   let email = req.params.email
-    User.findOne({email: email}).then((user)=> {
-      console.error(user)
-      if (!user) {
-        return res.status(402).json({
+  User.findOne({ email: email }).then((user) => {
+    console.error(user)
+    if (!user) {
+      return res.status(402).json({
+        title: 'Error',
+        message: " No User with that email address",
+      });
+    }
+    Token.findOne({ userId: user._id }).then((token) => {
+      console.error(token)
+      if (!token) {
+        console.error('NOOO token')
+        res.status(401).json({
           title: 'Error',
-          message: " No User with that email address",
-        });
-      }
-      Token.findOne({userId: user._id}).then((token)=> {
-        console.error(token)
-        if(!token){
-          console.error('NOOO token')
-          res.status(401).json({
-            title:'Error',
-            message:"No code found, please contact progressional fitness"
-          })
-        }
-        sendEmail(user.email, "Verify Email", token.token)
-        res.status(201).json({
-          message: 'An email was sent to you to you with your verification code'
+          message: "No code found, please contact progressional fitness"
         })
-
-
-
+      }
+      sendEmail(user.email, "Verify Email", token.token)
+      res.status(201).json({
+        message: 'An email was sent to you to you with your verification code'
       })
+
+
+
     })
+  })
 })
 
 
 
 
 router.post("/login", (req, res, next) => {
-  
+
   // console.error('hello', req.body)
   let fetchedUser;
   User.findOne({ email: req.body.email }).then((user) => {
@@ -234,17 +234,31 @@ router.get("", (req, res, next) => {
     });
 });
 
-router.post("/newUser", authUser, (req, res, next) => {
-  const user = new User({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    role: req.body.role
-  });
+// router.post("/newUser", authUser, (req, res, next) => {
+//   const user = new User({
+//     firstName: req.body.firstName,
+//     lastName: req.body.lastName,
+//     email: req.body.email,
+//     role: req.body.role
+//   });
 
+//   user.save().then((createdUser) => {
+//     res.status(201).json({
+//       message: "User Added Successfully",
+//       userId: createdUser._id,
+//     });
+//   });
+// }
+// );
+
+router.post("/newUser", authUser, (req, res, next) => {
+  const user = new User(req.body)
+  console.error(user)
+  
   user.save().then((createdUser) => {
     res.status(201).json({
       message: "User Added Successfully",
+      user: createdUser,
       userId: createdUser._id,
     });
   });
