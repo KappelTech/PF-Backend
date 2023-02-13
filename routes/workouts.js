@@ -79,7 +79,7 @@ router.get("", (req, res, next) => {
     query = { program: { $ne: null } }
   }
   // console.error('QUERY:', query)
-  const workoutQuery = Workout.find(query);
+  const workoutQuery = Workout.find(query).sort({date: -1});
   let fetchedWorkouts;
   if (pageSize && currentPage) {
     workoutQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
