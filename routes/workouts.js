@@ -16,11 +16,7 @@ router.post("", authUser, (req, res, next) => {
     creator: req.userData.userId,
     client: req.body.client ? req.body.client : null,
     program: req.body.program ? req.body.program : null,
-    workoutItems : [{
-      name: req.body.workoutItems.name,
-      description: req.body.workoutItems.description,
-      comments: req.body.workoutItems.comments,
-    }],
+    workoutItems : req.body.workoutItems,
     personalWorkout: req.body.personalWorkout? '1' : '0'
   });
   console.error(workout)

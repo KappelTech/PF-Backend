@@ -14,9 +14,9 @@ const workoutSchema = mongoose.Schema({
  workoutItems: 
   {type:
      [{
-    name: {type:String},
-    description: {type: String},
-    comments: {type: String}
+    name: String,
+    description: String,
+    comments: String
   }]
 }
  
