@@ -11,16 +11,22 @@ router.post("", authUser, (req, res, next) => {
   console.error(req.body)
 
   const workout = new Workout({
-    date: req.body.date,
+    date: req.body.date ? req.body.date : null,
     name: req.body.name,
     creator: req.userData.userId,
     client: req.body.client ? req.body.client : null,
     program: req.body.program ? req.body.program : null,
+    workoutItems : [{
+      name: req.body.workoutItems.name,
+      description: req.body.workoutItems.description,
+      comments: req.body.workoutItems.comments,
+    }],
     personalWorkout: req.body.personalWorkout? '1' : '0'
   });
   console.error(workout)
 
   workout.save().then((createdWorkout) => {
+    console.error(createdWorkout)
     res.status(201).json({
       message: "Workout Added Successfully",
       workoutId: createdWorkout._id,

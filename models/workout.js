@@ -11,13 +11,22 @@ const workoutSchema = mongoose.Schema({
   ref: "Program",
  },
  personalWorkout: {type: Boolean},
- workoutItems: [
-  {
-    name: {type: String},
+ workoutItems: 
+  {type:
+     [{
+    name: {type:String},
     description: {type: String},
-    comments: {type: String},
-  }
- ]
+    comments: {type: String}
+  }]
+}
+ 
+//  workoutItems: [
+//   mongoose.Schema({
+//     name: {type: String},
+//     description: {type: String},
+//     comments: {type: String},
+//   })
+//  ]
 });
 
 module.exports = mongoose.model('Workout', workoutSchema);
