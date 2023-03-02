@@ -17,7 +17,7 @@ const workoutSchema = mongoose.Schema({
     name: String,
     description: String,
     comments: String
-  }]
+  }],
 }
  
 //  workoutItems: [

@@ -14,9 +14,9 @@ router.post("", authUser, (req, res, next) => {
     date: req.body.date ? req.body.date : null,
     name: req.body.name,
     creator: req.userData.userId,
-    client: req.body.client ? req.body.client : null,
+    client: req.body.user ? req.body.user : null,
     program: req.body.program ? req.body.program : null,
-    workoutItems : req.body.workoutItems,
+    workoutItems: req.body.workoutItems,
     personalWorkout: req.body.personalWorkout? '1' : '0'
   });
   console.error(workout)
@@ -34,6 +34,7 @@ router.post("", authUser, (req, res, next) => {
 
 
 router.put("/:id", authUser, (req, res, next) => {
+  console.error(req.body)
 
   const workout = new Workout({
     _id: req.body.id,
@@ -41,9 +42,11 @@ router.put("/:id", authUser, (req, res, next) => {
     name: req.body.name,
     creator: req.userData.userId ? req.userData.userId : null,
     client: req.body.user ? req.body.user : null,
-    program: req.body.program ? req.body.program : null
+    program: req.body.program ? req.body.program : null,
+    workoutItems: req.body.workoutItems,
+    personalWorkout: req.body.personalWorkout? '1' : '0'
   });
-  Workout.updateOne({ _id: req.params.id }, workout).then((result) => {
+  Workout.updateOne({ _id: req.params.id, }, workout).then((result) => {
     // console.error(result)
     res.status(200).json({ message: "Update Successful" });
 
