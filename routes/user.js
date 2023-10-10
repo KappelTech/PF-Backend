@@ -174,7 +174,7 @@ router.post("/login", (req, res, next) => {
 
   // console.error('hello', req.body)
   let fetchedUser;
-  User.findOne({ email: req.body.email }).then((user) => {
+  User.findOne({ email: req.body.email }).select('+password').then((user) => {
     if (!user) {
       return res.status(402).json({
         title: 'Error',
