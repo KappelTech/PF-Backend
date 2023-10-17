@@ -160,9 +160,6 @@ router.get("/resendCode/:email", (req, res, next) => {
       res.status(201).json({
         message: 'An email was sent to you to you with your verification code'
       })
-
-
-
     })
   })
 })
@@ -180,29 +177,35 @@ router.post("/login", (req, res, next) => {
         title: 'Error',
         message: " No User with that email address",
       });
+    } else {
+      fetchedUser = user
+      return bcrypt.compare(req.body.password, user.password);
     }
-    fetchedUser = user
-    return bcrypt.compare(req.body.password, user.password);
+   
   }).then((result) => {
     if (!result) {
+      console.error('HERE')
       return res.status(402).json({
         title: 'Error',
         message: "Incorrect Password",
       });
+    } else if(fetchedUser) {
+      const token = jwt.sign(
+        { email: fetchedUser.email, userId: fetchedUser._id },
+        "secret_this_should_be_longer",
+        { expiresIn: "1h" }
+      );
+      res.status(200).json({
+        user: fetchedUser,
+        active: fetchedUser.active,
+        token: token,
+        expiresIn: 3600,
+        userId: fetchedUser._id,
+        role: fetchedUser.role
+      });
+
     }
-    const token = jwt.sign(
-      { email: fetchedUser.email, userId: fetchedUser._id },
-      "secret_this_should_be_longer",
-      { expiresIn: "1h" }
-    );
-    res.status(200).json({
-      user: fetchedUser,
-      active: fetchedUser.active,
-      token: token,
-      expiresIn: 3600,
-      userId: fetchedUser._id,
-      role: fetchedUser.role
-    });
+   
   })
     .catch((err) => {
       return res.status(402).json({

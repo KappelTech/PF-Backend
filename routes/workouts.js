@@ -87,33 +87,72 @@ router.put("/:id", authUser, async (req, res, next) => {
   // });
 });
 
-router.get("", (req, res, next) => {
-  // console.error(req.query)
+// router.get("", (req, res, next) => {
+//   // console.error(req.query)
+//   const pageSize = +req.query.pagesize;
+//   const currentPage = +req.query.page;
+//   // const client = req.query.client
+//   let query = {}
+//   if (req.query.client == 'all') {
+//     query = {}
+//   } else if (req.query.client) {
+//     query = { client: req.query.client }
+//   }
+
+//   if (req.query.program == 'all') {
+//     query = {}
+//   } else if (req.query.program) {
+//     query = { program: req.query.program }
+//   }
+
+//   if (req.query.type == 'client') {
+//     // console.error('HERE')
+//     query = { client: { $ne: null } }
+//   }
+//   if (req.query.type == 'program') {
+//     query = { program: { $ne: null } }
+//   }
+//   // console.error('QUERY:', query)
+//   const workoutQuery = Workout.find(query).sort({ date: -1 });
+//   let fetchedWorkouts;
+//   if (pageSize && currentPage) {
+//     workoutQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
+//   }
+//   workoutQuery
+//     .then((documents) => {
+//       fetchedWorkouts = documents;
+//       return Workout.count();
+//     })
+//     .then((count) => {
+//       res.status(200).json({
+//         message: "Workouts fetched successfully!",
+//         workouts: fetchedWorkouts,
+//         maxWorkouts: count,
+//       });
+//     });
+// });
+
+router.post("/workouts", (req, res, next) => {
+
   const pageSize = +req.query.pagesize;
   const currentPage = +req.query.page;
-  // const client = req.query.client
-  let query = {}
-  if (req.query.client == 'all') {
-    query = {}
-  } else if (req.query.client) {
-    query = { client: req.query.client }
+  let query = req.body
+  if (query.workoutType =='client'){
+    query.client = {$ne: null}
+    delete query.workoutType
   }
+  if (query.workoutType =='program'){
+    query.program = {$ne: null}
+    delete query.workoutType
+  }
+  if (query.workoutType =='') delete query.workoutType
+  if(query.client == '') delete query.client
+  if(query.program == '') delete query.program
+  console.error('body', query)
+  console.error(req.query)
+  // return
 
-  if (req.query.program == 'all') {
-    query = {}
-  } else if (req.query.program) {
-    query = { program: req.query.program }
-  }
-
-  if (req.query.type == 'client') {
-    // console.error('HERE')
-    query = { client: { $ne: null } }
-  }
-  if (req.query.type == 'program') {
-    query = { program: { $ne: null } }
-  }
-  // console.error('QUERY:', query)
-  const workoutQuery = Workout.find(query).sort({ date: -1 });
+  const workoutQuery = Workout.find(query).sort({ date: -1 }).populate({path: 'client'});
   let fetchedWorkouts;
   if (pageSize && currentPage) {
     workoutQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
