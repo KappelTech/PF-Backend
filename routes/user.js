@@ -270,15 +270,18 @@ router.post("/newUser", authUser, (req, res, next) => {
 
 //Update
 router.put(
-  "/:id", authUser, authRole(),
+  "/:id", authUser,
   (req, res, next) => {
     console.error(req)
+    // return
     const user = new User({
       _id: req.body.id,
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
-      role: req.body.role
+      role: req.body.role,
+      personalTrainingClient: req.body.personalTrainingClient,
+      active: req.body.active
     });
     User.updateOne({ _id: req.params.id }, user).then((result) => {
       console.error(result)

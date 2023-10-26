@@ -8,6 +8,7 @@ const workoutsRoutes = require("./routes/workouts");
 const programRoutes = require("./routes/programs");
 const workoutItemRoutes = require("./routes/workoutItems");
 const passwordReset = require("./routes/passwordReset");
+const reportRoutes = require("./routes/reports");
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.use( "/api/workouts", workoutsRoutes)
 app.use( "/api/programs", programRoutes)
 app.use( "/api/workoutItems", workoutItemRoutes)
 app.use( "/api/passwordReset", passwordReset)
+app.use( "/api/reports", reportRoutes)
 
 
 module.exports = app;

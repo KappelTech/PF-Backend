@@ -8,18 +8,19 @@ const user = require("../models/user")
 const WorkoutItem = require("../models/workoutItem");
 const workoutItem = require("../models/workoutItem");
 
-router.post("", authUser, (req, res, next) => {
-  console.error(req.body)
+router.post("/workouts", authUser, (req, res, next) => {
+  // console.error(req.body)
+  // return
   const items = req.body.workoutItems
 
   const workout = new Workout({
-    date: req.body.date ? req.body.date : null,
+    date: req.body.date ? new Date(req.body.date) : null,
     name: req.body.name,
     creator: req.userData.userId,
-    client: req.body.user ? req.body.user : null,
+    client: req.body.client ? req.body.client : null,
     program: req.body.program ? req.body.program : null,
     workoutItems: req.body.workoutItems,
-    personalWorkout: req.body.personalWorkout ? '1' : '0'
+    personalWorkout: req.body.personalWorkout == '1' ? '1' : '0'
   });
 
 
@@ -48,7 +49,7 @@ router.put("/:id", authUser, async (req, res, next) => {
       client: req.body.user ? req.body.user : null,
       program: req.body.program ? req.body.program : null,
       workoutItems: req.body.workoutItems,
-      personalWorkout: req.body.personalWorkout ? '1' : '0'
+      personalWorkout: req.body.personalWorkout == '1' ? '1' : '0'
      }, 
      {new:true});
   // ...
@@ -132,7 +133,7 @@ router.put("/:id", authUser, async (req, res, next) => {
 //     });
 // });
 
-router.post("/workouts", (req, res, next) => {
+router.post("/getWorkouts", (req, res, next) => {
 
   const pageSize = +req.query.pagesize;
   const currentPage = +req.query.page;
@@ -157,12 +158,10 @@ router.post("/workouts", (req, res, next) => {
   if (pageSize && currentPage) {
     workoutQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
   }
-  workoutQuery
-    .then((documents) => {
+  workoutQuery.then((documents) => {
       fetchedWorkouts = documents;
       return Workout.count();
-    })
-    .then((count) => {
+    }).then((count) => {
       res.status(200).json({
         message: "Workouts fetched successfully!",
         workouts: fetchedWorkouts,
@@ -184,9 +183,21 @@ router.get("/:id", (req, res, next) => {
     });
 });
 
-router.get("/myWorkouts/:id", (req, res, next) => {
+router.get("/personalTrainingWorkouts/:id", (req, res, next) => {
   // console.error(req.params)
-  Workout.find({ client: req.params.id }).then((workout) => {
+
+  let query = {
+    client: req.params.id ,
+    date:{ 
+      "$gte": req.query.dateStart,
+      "$lt": req.query.dateEnd
+    } 
+  }
+  if(!req.query.dateStart && ! req.query.dateEnd){
+   delete query.date
+  }
+
+  Workout.find(query).then((workout) => {
     if (workout) {
       res.status(200).json(workout);
     } else {
@@ -195,9 +206,22 @@ router.get("/myWorkouts/:id", (req, res, next) => {
   });
 });
 
-router.get("/personalWorkouts/:id", (req, res, next) => {
-  // console.error(req.params)
-  Workout.find({ creator: req.params.id, personalWorkout: '1' }).then((workout) => {
+router.get("/myWorkouts/:id", (req, res, next) => {
+  console.error(req.query)
+  let query = {
+    creator: req.params.id, 
+    personalWorkout: '1',
+    date:{ 
+      
+      "$gte": req.query.dateStart,
+      "$lt": req.query.dateEnd
+    } 
+  }
+  if(!req.query.dateStart && ! req.query.dateEnd){
+   delete query.date
+  }
+  // return
+  Workout.find( query ).sort({ date: -1 }).then((workout) => {
     if (workout) {
       // console.error(workout)
       res.status(200).json(workout);
@@ -209,7 +233,7 @@ router.get("/personalWorkouts/:id", (req, res, next) => {
 
 router.get("/programWorkouts/:id", (req, res, next) => {
   // console.error(req.params)
-  Workout.find({ program: req.params.id }).then((workout) => {
+  Workout.find({ program: req.params.id }).sort({ date: -1 }).then((workout) => {
     if (workout) {
       res.status(200).json(workout);
     } else {
@@ -220,9 +244,7 @@ router.get("/programWorkouts/:id", (req, res, next) => {
 
 router.delete("/:id", authUser, (req, res, next) => {
   Workout.deleteOne({ _id: req.params.id, }).then((result) => {
-    WorkoutItem.deleteMany({ "workout": req.params.id }).then((res) => {
-      // console.error(res)
-    })
+   
     // console.error(result)
     if (result.n > 0) {
       res.status(200).json({ message: "Deletion Successful" });

@@ -14,6 +14,7 @@ function authUser  (req, res, next) {
 
 function authRole(role){
   return (req,res,next)=>{
+    console.error(req.user)
     if(req.user.role !== role){
       res.status(401).json({message: 'You are not an Admin'})
     }
