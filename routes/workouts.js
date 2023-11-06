@@ -46,7 +46,7 @@ router.put("/:id", authUser, async (req, res, next) => {
       date: req.body.date ? req.body.date : null,
       name: req.body.name,
       creator: req.userData.userId,
-      client: req.body.user ? req.body.user : null,
+      client: req.body.client ? req.body.client : null,
       program: req.body.program ? req.body.program : null,
       workoutItems: req.body.workoutItems,
       personalWorkout: req.body.personalWorkout == '1' ? '1' : '0'
@@ -174,7 +174,7 @@ router.get("/:id", (req, res, next) => {
   Workout.findById(req.params.id)
     .populate({ path: 'creator' })
     .then((workout) => {
-      console.error(workout)
+      // console.error(workout)
       if (workout) {
         res.status(200).json(workout);
       } else {
@@ -207,7 +207,7 @@ router.get("/personalTrainingWorkouts/:id", (req, res, next) => {
 });
 
 router.get("/myWorkouts/:id", (req, res, next) => {
-  console.error(req.query)
+  // console.error(req.query)
   let query = {
     creator: req.params.id, 
     personalWorkout: '1',
@@ -241,6 +241,22 @@ router.get("/programWorkouts/:id", (req, res, next) => {
     }
   });
 });
+
+router.put("/clientComment/:id", (req, res, next)=> {
+  console.error(req.body)
+  console.error(req.params)
+  Workout.updateOne(
+    {"workoutItems._id": req.params.id}, 
+    {$push:
+      {"workoutItems.$.clientComments": req.body}}
+    ).then(res=> {
+      console.error(res)
+    })
+
+  // work.save().then(res=> {
+  //   console.error(res)
+  // })
+})
 
 router.delete("/:id", authUser, (req, res, next) => {
   Workout.deleteOne({ _id: req.params.id, }).then((result) => {

@@ -11,17 +11,29 @@ const router = express.Router();
 
 
 router.get("/:id", (req, res, next) => {
-    console.error(req.params.id)
+    // console.error(req)
     let query = {
         creator: req.params.id,
         personalWorkout: '1',
     }
+let q = {
+    $or:[
+       
+        {client: req.params.id},
+        {$and:[
+            {creator: req.params.id},
+            {personalWorkout: '1'},
+        ]}
+    ],
+   
+}
+
     let fetchedWorkouts
-    Workout.find(query).then((workouts) => {
+    Workout.find(q).then((workouts) => {
 
         fetchedWorkouts = workouts
 
-        return Workout.countDocuments(query)
+        return Workout.countDocuments(q)
 
     }).then((count) => {
         res.status(200).json({
