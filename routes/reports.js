@@ -25,8 +25,14 @@ let q = {
             {personalWorkout: '1'},
         ]}
     ],
+    date: {
+
+        "$gte": req.query.dateStart,
+        "$lt": req.query.dateEnd
+      }
    
 }
+console.error(q)
 
     let fetchedWorkouts
     Workout.find(q).then((workouts) => {

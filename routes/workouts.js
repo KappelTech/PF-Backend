@@ -5,8 +5,7 @@ const router = express.Router();
 
 const Workout = require("../models/workout");
 const user = require("../models/user")
-const WorkoutItem = require("../models/workoutItem");
-const workoutItem = require("../models/workoutItem");
+const WorkoutResults = require("../models/workoutResults");
 
 router.post("/workouts", authUser, (req, res, next) => {
   // console.error(req.body)
@@ -36,13 +35,38 @@ router.post("/workouts", authUser, (req, res, next) => {
 }
 );
 
+router.post("/workoutResults", authUser, (req, res, next) => {
+
+  const workoutResult = new WorkoutResults({
+    date: req.body.date,
+    workout: req.body.workout,
+    comment: req.body.comment,
+    client: req.body.client
+  });
+
+
+  console.error(workoutResult)
+  // return
+
+  workoutResult.save().then((result) => {
+    // console.error(createdWorkout)
+    res.status(201).json({
+      message: "Workout Added Successfully",
+      workoutResultId: result._id,
+    });
+  });
+}
+);
+
+
+
 
 
 router.put("/:id", authUser, async (req, res, next) => {
-  console.error(req.userData)
+  // console.error(req.userData)
 
   const workout = await Workout.findByIdAndUpdate(req.params.id,
-     {
+    {
       date: req.body.date ? req.body.date : null,
       name: req.body.name,
       creator: req.userData.userId,
@@ -50,8 +74,8 @@ router.put("/:id", authUser, async (req, res, next) => {
       program: req.body.program ? req.body.program : null,
       workoutItems: req.body.workoutItems,
       personalWorkout: req.body.personalWorkout == '1' ? '1' : '0'
-     }, 
-     {new:true});
+    },
+    { new: true });
   // ...
 
   // workout = req.body;
@@ -138,63 +162,82 @@ router.post("/getWorkouts", (req, res, next) => {
   const pageSize = +req.query.pagesize;
   const currentPage = +req.query.page;
   let query = req.body
-  if (query.workoutType =='client'){
-    query.client = {$ne: null}
+  if (query.workoutType == 'client') {
+    query.client = { $ne: null }
     delete query.workoutType
   }
-  if (query.workoutType =='program'){
-    query.program = {$ne: null}
+  if (query.workoutType == 'program') {
+    query.program = { $ne: null }
     delete query.workoutType
   }
-  if (query.workoutType =='') delete query.workoutType
-  if(query.client == '') delete query.client
-  if(query.program == '') delete query.program
-  console.error('body', query)
-  console.error(req.query)
+  if (query.workoutType == '') delete query.workoutType
+  if (query.client == '') delete query.client
+  if (query.program == '') delete query.program
+  // console.error('body', query)
+  // console.error(req.query)
   // return
 
-  const workoutQuery = Workout.find(query).sort({ date: -1 }).populate({path: 'client'});
+  const workoutQuery = Workout.find(query).sort({ date: -1 }).populate({ path: 'client' });
   let fetchedWorkouts;
   if (pageSize && currentPage) {
     workoutQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
   }
   workoutQuery.then((documents) => {
-      fetchedWorkouts = documents;
-      return Workout.count();
-    }).then((count) => {
-      res.status(200).json({
-        message: "Workouts fetched successfully!",
-        workouts: fetchedWorkouts,
-        maxWorkouts: count,
-      });
+    fetchedWorkouts = documents;
+    return Workout.count();
+  }).then((count) => {
+    res.status(200).json({
+      message: "Workouts fetched successfully!",
+      workouts: fetchedWorkouts,
+      maxWorkouts: count,
     });
+  });
 });
 
-router.get("/:id", (req, res, next) => {
-  Workout.findById(req.params.id)
-    .populate({ path: 'creator' })
-    .then((workout) => {
-      // console.error(workout)
-      if (workout) {
-        res.status(200).json(workout);
-      } else {
-        res.status(404).json({ message: "workout not found" });
+
+router.get("/:id", async (req, res, next) => {
+
+  let workout = await Workout.findById(req.params.id).populate({ path: 'creator' }).lean()
+
+  if (workout && workout.workoutItems) {
+    // getresults(workout)
+    for (let item of workout.workoutItems) {
+      item.workoutResult 
+      let query = {
+        client: req.query.clientId,
+        workout: item._id
       }
-    });
+     let workoutres = await WorkoutResults.find(query).lean()
+      if(workoutres){
+        item.workoutResults = workoutres
+
+      }
+
+    }
+  }
+
+  // console.error(workout)
+
+  // return
+  if (workout) {
+    res.status(200).json(workout);
+  } else {
+    res.status(404).json({ message: "workout not found" });
+  }
 });
 
 router.get("/personalTrainingWorkouts/:id", (req, res, next) => {
   // console.error(req.params)
 
   let query = {
-    client: req.params.id ,
-    date:{ 
+    client: req.params.id,
+    date: {
       "$gte": req.query.dateStart,
       "$lt": req.query.dateEnd
-    } 
+    }
   }
-  if(!req.query.dateStart && ! req.query.dateEnd){
-   delete query.date
+  if (!req.query.dateStart && !req.query.dateEnd) {
+    delete query.date
   }
 
   Workout.find(query).then((workout) => {
@@ -209,19 +252,19 @@ router.get("/personalTrainingWorkouts/:id", (req, res, next) => {
 router.get("/myWorkouts/:id", (req, res, next) => {
   // console.error(req.query)
   let query = {
-    creator: req.params.id, 
+    creator: req.params.id,
     personalWorkout: '1',
-    date:{ 
-      
+    date: {
+
       "$gte": req.query.dateStart,
       "$lt": req.query.dateEnd
-    } 
+    }
   }
-  if(!req.query.dateStart && ! req.query.dateEnd){
-   delete query.date
+  if (!req.query.dateStart && !req.query.dateEnd) {
+    delete query.date
   }
   // return
-  Workout.find( query ).sort({ date: -1 }).then((workout) => {
+  Workout.find(query).sort({ date: -1 }).then((workout) => {
     if (workout) {
       // console.error(workout)
       res.status(200).json(workout);
@@ -242,16 +285,18 @@ router.get("/programWorkouts/:id", (req, res, next) => {
   });
 });
 
-router.put("/clientComment/:id", (req, res, next)=> {
-  console.error(req.body)
-  console.error(req.params)
+router.put("/clientComment/:id", (req, res, next) => {
+  // console.error(req.body)
+  // console.error(req.params)
   Workout.updateOne(
-    {"workoutItems._id": req.params.id}, 
-    {$push:
-      {"workoutItems.$.clientComments": req.body}}
-    ).then(res=> {
-      console.error(res)
-    })
+    { "workoutItems._id": req.params.id },
+    {
+      $push:
+        { "workoutItems.$.clientComments": req.body }
+    }
+  ).then(res => {
+    // console.error(res)
+  })
 
   // work.save().then(res=> {
   //   console.error(res)
@@ -260,7 +305,7 @@ router.put("/clientComment/:id", (req, res, next)=> {
 
 router.delete("/:id", authUser, (req, res, next) => {
   Workout.deleteOne({ _id: req.params.id, }).then((result) => {
-   
+
     // console.error(result)
     if (result.n > 0) {
       res.status(200).json({ message: "Deletion Successful" });
