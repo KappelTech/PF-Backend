@@ -32,7 +32,7 @@ let q = {
       }
    
 }
-console.error(q)
+// console.error(q)
 
     let fetchedWorkouts
     Workout.find(q).then((workouts) => {

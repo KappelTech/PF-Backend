@@ -45,7 +45,7 @@ router.post("/workoutResults", authUser, (req, res, next) => {
   });
 
 
-  console.error(workoutResult)
+  // console.error(workoutResult)
   // return
 
   workoutResult.save().then((result) => {
@@ -174,7 +174,8 @@ router.post("/getWorkouts", (req, res, next) => {
   if (query.client == '') delete query.client
   if (query.program == '') delete query.program
   // console.error('body', query)
-  // console.error(req.query)
+  query.personalWorkout = false
+  console.error(query)
   // return
 
   const workoutQuery = Workout.find(query).sort({ date: -1 }).populate({ path: 'client' });
