@@ -12,6 +12,7 @@ router.post("/workouts", authUser, (req, res, next) => {
   // return
   const items = req.body.workoutItems
 
+  
   const workout = new Workout({
     date: req.body.date ? new Date(req.body.date) : null,
     name: req.body.name,
@@ -19,7 +20,8 @@ router.post("/workouts", authUser, (req, res, next) => {
     client: req.body.client ? req.body.client : null,
     program: req.body.program ? req.body.program : null,
     workoutItems: req.body.workoutItems,
-    personalWorkout: req.body.personalWorkout == '1' ? '1' : '0'
+    personalWorkout: req.body.personalWorkout == '1' ? '1' : '0',
+    favorite: false
   });
 
 
@@ -61,7 +63,6 @@ router.post("/workoutResults", authUser, (req, res, next) => {
 
 
 
-
 router.put("/:id", authUser, async (req, res, next) => {
   // console.error(req.userData)
 
@@ -73,7 +74,8 @@ router.put("/:id", authUser, async (req, res, next) => {
       client: req.body.client ? req.body.client : null,
       program: req.body.program ? req.body.program : null,
       workoutItems: req.body.workoutItems,
-      personalWorkout: req.body.personalWorkout == '1' ? '1' : '0'
+      personalWorkout: req.body.personalWorkout == '1' ? '1' : '0',
+      // favorite: req.body.favorite, 
     },
     { new: true });
   // ...
@@ -197,8 +199,11 @@ router.post("/getWorkouts", (req, res, next) => {
 
 
 router.get("/:id", async (req, res, next) => {
+  let workoutResult = []
 
   let workout = await Workout.findById(req.params.id).populate({ path: 'creator' }).lean()
+
+  // let results = await
 
   if (workout && workout.workoutItems) {
     // getresults(workout)
@@ -210,22 +215,46 @@ router.get("/:id", async (req, res, next) => {
       }
      let workoutres = await WorkoutResults.find(query).lean()
       if(workoutres){
+        workoutResult.push(workoutres)
         item.workoutResults = workoutres
 
       }
 
     }
   }
+  if (workout) {
+    res.status(200).json({workout: workout, workoutResult: workoutResult});
+  } else {
+    res.status(404).json({ message: "workout not found" });
+  }
+});
 
-  // console.error(workout)
+router.get("/favoriteWorkouts/:id", async (req,res,next)=> {
+  let query = {
+    client: req.params.id,
+    favorite: true
+  }
 
-  // return
+  let workout = await Workout.find(query)
   if (workout) {
     res.status(200).json(workout);
   } else {
     res.status(404).json({ message: "workout not found" });
   }
-});
+})
+
+router.put("/addFavorite/:id", authUser, async (req,res,next)=> {
+  console.error(req.body)
+
+  const workout = await Workout.findByIdAndUpdate(req.params.id, {$set: {favorite: req.body.favorite }})
+
+  if (workout) {
+    res.status(200).json(workout);
+  } else {
+    res.status(404).json({ message: "workout not found" });
+  }
+
+})
 
 router.get("/personalTrainingWorkouts/:id", (req, res, next) => {
   // console.error(req.params)

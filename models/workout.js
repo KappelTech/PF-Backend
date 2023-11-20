@@ -24,7 +24,7 @@ const workoutSchema = mongoose.Schema({
     ref: "Program",
   },
   personalWorkout: { type: Boolean },
-
+  favorite: {type: Boolean},
   workoutItems: [workoutItemSchema],
  
 
