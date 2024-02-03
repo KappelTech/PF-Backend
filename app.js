@@ -9,13 +9,14 @@ const programRoutes = require("./routes/programs");
 const workoutItemRoutes = require("./routes/workoutItems");
 const passwordReset = require("./routes/passwordReset");
 const reportRoutes = require("./routes/reports");
+const favoriteWorkout = require("./routes/favoriteWorkouts");
 
 const app = express();
+const uri = "mongodb+srv://Brandon:kXUeDiNh3tl6zi6P@cluster0.titlm.mongodb.net/node-angular?retryWrites=true&w=majority"
 
 mongoose
   .connect(
-    "mongodb+srv://Brandon:kXUeDiNh3tl6zi6P@cluster0.titlm.mongodb.net/node-angular?retryWrites=true&w=majority"
-  , {useNewUrlParser: true, useUnifiedTopology: true})
+    uri, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex:true})
   .then(() => {
     console.log("Connected to Database");
   })
@@ -46,6 +47,7 @@ app.use( "/api/programs", programRoutes)
 app.use( "/api/workoutItems", workoutItemRoutes)
 app.use( "/api/passwordReset", passwordReset)
 app.use( "/api/reports", reportRoutes)
+app.use( "/api/favoriteWorkouts", favoriteWorkout)
 
 
 module.exports = app;

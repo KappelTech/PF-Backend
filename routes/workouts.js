@@ -6,6 +6,7 @@ const router = express.Router();
 const Workout = require("../models/workout");
 const user = require("../models/user")
 const WorkoutResults = require("../models/workoutResults");
+const FavWorkout = require("../models/favoriteWorkout");
 
 router.post("/workouts", authUser, (req, res, next) => {
   // console.error(req.body)
@@ -187,7 +188,7 @@ router.post("/getWorkouts", (req, res, next) => {
   }
   workoutQuery.then((documents) => {
     fetchedWorkouts = documents;
-    return Workout.count();
+    return Workout.countDocuments(query);
   }).then((count) => {
     res.status(200).json({
       message: "Workouts fetched successfully!",
@@ -199,11 +200,15 @@ router.post("/getWorkouts", (req, res, next) => {
 
 
 router.get("/:id", async (req, res, next) => {
-  let workoutResult = []
 
   let workout = await Workout.findById(req.params.id).populate({ path: 'creator' }).lean()
 
-  // let results = await
+  let Fav = await FavWorkout.find({ user:req.query.clientId, workout: req.params.id})
+
+  if(Fav.length){
+    // console.error(Fav)
+    workout.favorite = true
+  }
 
   if (workout && workout.workoutItems) {
     // getresults(workout)
@@ -215,7 +220,6 @@ router.get("/:id", async (req, res, next) => {
       }
      let workoutres = await WorkoutResults.find(query).lean()
       if(workoutres){
-        workoutResult.push(workoutres)
         item.workoutResults = workoutres
 
       }
@@ -223,7 +227,7 @@ router.get("/:id", async (req, res, next) => {
     }
   }
   if (workout) {
-    res.status(200).json({workout: workout, workoutResult: workoutResult});
+    res.status(200).json(workout);
   } else {
     res.status(404).json({ message: "workout not found" });
   }
