@@ -1,9 +1,11 @@
+require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
 const postsRoutes = require("./routes/posts");
 const userRoutes = require("./routes/user");
+const authRoutes = require("./routes/auth");
 const workoutsRoutes = require("./routes/workouts");
 const programRoutes = require("./routes/programs");
 const workoutItemRoutes = require("./routes/workoutItems");
@@ -12,18 +14,18 @@ const reportRoutes = require("./routes/reports");
 const favoriteWorkout = require("./routes/favoriteWorkouts");
 
 const app = express();
-const uri = "mongodb+srv://Brandon:kXUeDiNh3tl6zi6P@cluster0.titlm.mongodb.net/node-angular?retryWrites=true&w=majority"
-
+const uri = mongoURI = `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@cluster0.titlm.mongodb.net/node-angular?retryWrites=true&w=majority`;
 mongoose
   .connect(
-    uri, {useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex:true})
+    uri, {
+      tls: true
+    })
   .then(() => {
     console.log("Connected to Database");
   })
-  .catch(() => {
-    console.log("Connection failed");
+  .catch((e) => {
+    console.log("Connection failed", e);
   });
-// MONGO ATLAS PW: kXUeDiNh3tl6zi6P
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -31,7 +33,7 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "Origin, X-Request-With, Content-Type, Accept, Authorization"
+    "Origin, X-Request-With, Content-Type, Accept, Authorization, skiploading"
   );
   res.setHeader(
     "Access-Control-Allow-Methods",
@@ -42,6 +44,7 @@ app.use((req, res, next) => {
 
 app.use( "/api/posts", postsRoutes)
 app.use( "/api/user", userRoutes)
+app.use( "/api/auth", authRoutes)
 app.use( "/api/workouts", workoutsRoutes)
 app.use( "/api/programs", programRoutes)
 app.use( "/api/workoutItems", workoutItemRoutes)

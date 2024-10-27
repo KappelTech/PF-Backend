@@ -192,7 +192,7 @@ router.post("/login", (req, res, next) => {
     } else if(fetchedUser) {
       const token = jwt.sign(
         { email: fetchedUser.email, userId: fetchedUser._id },
-        "secret_this_should_be_longer",
+        process.env.JWT_SECRET,
         { expiresIn: "1h" }
       );
       res.status(200).json({
@@ -215,7 +215,7 @@ router.post("/login", (req, res, next) => {
 });
 
 //Read
-router.get("", (req, res, next) => {
+router.get("", authUser, (req, res, next) => {
   const pageSize = +req.query.pagesize;
   const currentPage = +req.query.page;
   const userQuery = User.find();

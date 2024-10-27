@@ -1,0 +1,22 @@
+version: '3.8'  # Specify the version of the Docker Compose file format
+
+services:
+  app:  # Development service
+    build:
+      context: .  # Build context (directory with Dockerfile)
+    ports:
+      - "3000:3000"  # Map port 3000 on the host to port 3000 in the container
+    volumes:
+      - .:/app  # Mount current directory to /app in the container
+    environment:
+      - NODE_ENV=development  # Set NODE_ENV to development
+    command: ./node_modules/.bin/nodemon server.js   # Command to run in development
+
+  app-prod:  # Production service
+    build:
+      context: .  # Build context (same directory)
+    ports:
+      - "3000:3000"  # Same port mapping for production
+    environment:
+      - NODE_ENV=production  # Set NODE_ENV to production
+    command: node server.js  # Command to run in production

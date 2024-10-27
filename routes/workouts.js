@@ -7,346 +7,380 @@ const Workout = require("../models/workout");
 const user = require("../models/user")
 const WorkoutResults = require("../models/workoutResults");
 const FavWorkout = require("../models/favoriteWorkout");
+const workout = require("../models/workout");
 
-router.post("/workouts", authUser, (req, res, next) => {
-  // console.error(req.body)
-  // return
-  const items = req.body.workoutItems
+// Create workouts 
+router.post("/workouts", authUser, async (req, res, next) => {
+  try {
+    console.log('workout', req.userData);
+    // Validate request body
+    const { date, name, client, program, workoutItems, personalWorkout } = req.body;
+    // if (!name) {
+    //   return res.status(400).json({ message: "Name and workoutItems are required" });
+    // }
 
-  
-  const workout = new Workout({
-    date: req.body.date ? new Date(req.body.date) : null,
-    name: req.body.name,
-    creator: req.userData.userId,
-    client: req.body.client ? req.body.client : null,
-    program: req.body.program ? req.body.program : null,
-    workoutItems: req.body.workoutItems,
-    personalWorkout: req.body.personalWorkout == '1' ? '1' : '0',
-    favorite: false
-  });
+    // Create new workout object
+    const workout = new Workout({
+      date: date ? new Date(date) : null,
+      name,
+      creator: req.userData.userId,
+      client: client || null,
+      program: program || null,
+      workoutItems,
+      personalWorkout: personalWorkout === '1' ? '1' : '0',
+      favorite: false,
+    });
 
+    // Save workout to database
+    const createdWorkout = await workout.save();
 
-  console.error(workout)
-
-  workout.save().then((createdWorkout) => {
-    // console.error(createdWorkout)
+    // Respond with success
     res.status(201).json({
       message: "Workout Added Successfully",
       workoutId: createdWorkout._id,
     });
-  });
-}
-);
-
-router.post("/workoutResults", authUser, (req, res, next) => {
-
-  const workoutResult = new WorkoutResults({
-    date: req.body.date,
-    workout: req.body.workout,
-    comment: req.body.comment,
-    client: req.body.client
-  });
+  } catch (error) {
+    // Handle errors
+    console.error("Error adding workout:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 
 
-  // console.error(workoutResult)
-  // return
+// Create workout result for a workout
+router.post("/workoutResults", authUser, async (req, res, next) => {
+  try {
+    // Validate request body
+    const { date, workout, comment, client } = req.body;
+    if (!date || !workout) {
+      return res.status(400).json({ message: "Date and workout are required" });
+    }
 
-  workoutResult.save().then((result) => {
-    // console.error(createdWorkout)
+    // Create workout result object
+    const workoutResult = new WorkoutResults({
+      date: date ? new Date(date) : null,
+      workout,
+      comment,
+      client
+    });
+
+    // Save workout result to database
+    const result = await workoutResult.save();
+
+    // Respond with success
     res.status(201).json({
       message: "Workout Added Successfully",
       workoutResultId: result._id,
     });
-  });
-}
-);
-
-
-
-
-router.put("/:id", authUser, async (req, res, next) => {
-  // console.error(req.userData)
-
-  const workout = await Workout.findByIdAndUpdate(req.params.id,
-    {
-      date: req.body.date ? req.body.date : null,
-      name: req.body.name,
-      creator: req.userData.userId,
-      client: req.body.client ? req.body.client : null,
-      program: req.body.program ? req.body.program : null,
-      workoutItems: req.body.workoutItems,
-      personalWorkout: req.body.personalWorkout == '1' ? '1' : '0',
-      // favorite: req.body.favorite, 
-    },
-    { new: true });
-  // ...
-
-  // workout = req.body;
-
-  // console.error(workout)
-  // return 
-  workout.save().then((result) => {
-    // console.error(result)
-    res.status(200).json({ message: "Update Successful", workoutId: result._id })
-  })
-
-
-
-  // const workout = new Workout({
-  //   _id: req.body.id,
-  //   date: req.body.date,
-  //   name: req.body.name,
-  //   creator: req.userData.userId ? req.userData.userId : null,
-  //   client: req.body.user ? req.body.user : null,
-  //   program: req.body.program ? req.body.program : null,
-  //   workoutItems: req.body.workoutItem,
-  //   personalWorkout: req.body.personalWorkout ? '1' : '0'
-  // });
-  // console.error(workout)
-  // Workout.updateOne({ _id: req.params.id }, workout).then((result) => {
-  //   // console.error(result)
-  //   res.status(200).json({ message: "Update Successful" });
-
-  //   // if(result.nModified > 0) {
-  //   // res.status(200).json({ message: "Update Successful" });
-  //   // } else {
-  //   // res.status(401).json({ message: "Not Authorized" });
-  //   // }
-  // });
+  } catch (error) {
+    // Handle errors
+    console.error("Error adding workout result:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 });
 
-// router.get("", (req, res, next) => {
-//   // console.error(req.query)
-//   const pageSize = +req.query.pagesize;
-//   const currentPage = +req.query.page;
-//   // const client = req.query.client
-//   let query = {}
-//   if (req.query.client == 'all') {
-//     query = {}
-//   } else if (req.query.client) {
-//     query = { client: req.query.client }
-//   }
 
-//   if (req.query.program == 'all') {
-//     query = {}
-//   } else if (req.query.program) {
-//     query = { program: req.query.program }
-//   }
+// Update workout by ID
+router.put("/:id", authUser, async (req, res, next) => {
+  try {
+    // Validate request body
+    const { date, name, client, program, workoutItems, personalWorkout } = req.body;
+    // if (!name || !workoutItems) {
+    //   return res.status(400).json({ message: "Name and workoutItems are required" });
+    // }
 
-//   if (req.query.type == 'client') {
-//     // console.error('HERE')
-//     query = { client: { $ne: null } }
-//   }
-//   if (req.query.type == 'program') {
-//     query = { program: { $ne: null } }
-//   }
-//   // console.error('QUERY:', query)
-//   const workoutQuery = Workout.find(query).sort({ date: -1 });
-//   let fetchedWorkouts;
-//   if (pageSize && currentPage) {
-//     workoutQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
-//   }
-//   workoutQuery
-//     .then((documents) => {
-//       fetchedWorkouts = documents;
-//       return Workout.count();
-//     })
-//     .then((count) => {
-//       res.status(200).json({
-//         message: "Workouts fetched successfully!",
-//         workouts: fetchedWorkouts,
-//         maxWorkouts: count,
-//       });
-//     });
-// });
+    // Update workout document
+    const updatedWorkout = await Workout.findByIdAndUpdate(
+      req.params.id,
+      {
+        date: date ? new Date(date) : null,
+        name,
+        creator: req.userData.userId,
+        client: client || null,
+        program: program || null,
+        workoutItems,
+        personalWorkout: personalWorkout === '1' ? '1' : '0',
+      },
+      { new: true } // Return the updated document
+    );
 
-router.post("/getWorkouts", (req, res, next) => {
+    if (!updatedWorkout) {
+      return res.status(404).json({ message: "Workout not found" });
+    }
 
-  const pageSize = +req.query.pagesize;
-  const currentPage = +req.query.page;
-  let query = req.body
-  if (query.workoutType == 'client') {
-    query.client = { $ne: null }
-    delete query.workoutType
+    // Respond with success
+    res.status(200).json({
+      message: "Update Successful",
+      workoutId: updatedWorkout._id,
+    });
+  } catch (error) {
+    // Handle errors
+    console.error("Error updating workout:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
-  if (query.workoutType == 'program') {
-    query.program = { $ne: null }
-    delete query.workoutType
-  }
-  if (query.workoutType == '') delete query.workoutType
-  if (query.client == '') delete query.client
-  if (query.program == '') delete query.program
-  // console.error('body', query)
-  query.personalWorkout = false
-  console.error(query)
-  // return
+});
 
-  const workoutQuery = Workout.find(query).sort({ date: -1 }).populate({ path: 'client' });
-  let fetchedWorkouts;
-  if (pageSize && currentPage) {
-    workoutQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
+
+// Get workouts by type of workout (admin workouts) Types: client, program 
+// routes/workouts.js
+router.get("/workouts/:userId", async (req,res,next) => {
+  try {
+    const creator  = req.params.userId
+    const workouts = await Workout.find({creator, personalWorkout: true}).sort({ date: -1 })
+    res.status(200).json({workouts});
+  } catch (error) {
+    // Error handling
+    console.error('Error fetching workouts:', error);
+    res.status(500).json({
+      message: "Fetching workouts failed.",
+      error: error.message,
+    });
   }
-  workoutQuery.then((documents) => {
-    fetchedWorkouts = documents;
-    return Workout.countDocuments(query);
-  }).then((count) => {
+})
+
+router.post("/getWorkouts", async (req, res, next) => {
+  try {
+    const { pagesize: pageSize, page: currentPage, workoutType, client, program } = req.query;
+    const query = { personalWorkout: false };
+
+    // Add filters based on the request parameters
+    if (workoutType === 'client') {
+      query.client = { $ne: null };
+    } else if (workoutType === 'program') {
+      query.program = { $ne: null };
+    }
+
+    if (client && client !== 'undefined') {
+      query.client = client;
+    }
+
+    if (program && program !== 'undefined') {
+      query.program = program;
+    }
+
+    console.error('query', query);
+
+    // Prepare the base workout query
+    let workoutQuery = Workout.find(query).sort({ date: -1 }).populate({ path: 'client' });
+
+    // Apply pagination if applicable
+    if (pageSize && currentPage) {
+      const pageSizeInt = parseInt(pageSize);
+      const currentPageInt = parseInt(currentPage);
+      workoutQuery = workoutQuery.skip(pageSizeInt * (currentPageInt - 1)).limit(pageSizeInt);
+    }
+
+    // Execute the query and get the total count
+    const [fetchedWorkouts, count] = await Promise.all([
+      workoutQuery.exec(),
+      Workout.countDocuments(query)
+    ]);
+
+    // Send the response
     res.status(200).json({
       message: "Workouts fetched successfully!",
       workouts: fetchedWorkouts,
       maxWorkouts: count,
     });
-  });
+  } catch (error) {
+    // Error handling
+    console.error('Error fetching workouts:', error);
+    res.status(500).json({
+      message: "Fetching workouts failed.",
+      error: error.message,
+    });
+  }
 });
 
 
+// Get workout by id
 router.get("/:id", async (req, res, next) => {
+  
+  try {
+    const { id } = req.params;
+    const { clientId } = req.query;
 
-  let workout = await Workout.findById(req.params.id).populate({ path: 'creator' }).lean()
+    // Fetch the workout and its creator, and check if it's favorited
+    const workout = await Workout.findById(id)
+      .populate({ path: 'creator' })
+      .populate({
+        path: 'workoutItems.exercise', // Populates the exercise field inside workout items
+      })
+      .lean();
 
-  let Fav = await FavWorkout.find({ user:req.query.clientId, workout: req.params.id})
-
-  if(Fav.length){
-    // console.error(Fav)
-    workout.favorite = true
-  }
-
-  if (workout && workout.workoutItems) {
-    // getresults(workout)
-    for (let item of workout.workoutItems) {
-      item.workoutResult 
-      let query = {
-        client: req.query.clientId,
-        workout: item._id
-      }
-     let workoutres = await WorkoutResults.find(query).lean()
-      if(workoutres){
-        item.workoutResults = workoutres
-
-      }
-
+    if (!workout) {
+      return res.status(404).json({ message: "Workout not found" });
     }
-  }
-  if (workout) {
+
+    // Check if the workout is favorited by the client
+    const isFavorited = await FavWorkout.exists({ user: clientId, workout: id });
+    workout.favorite = Boolean(isFavorited);
+
+    // Fetch workout results for each workout item
+    if (workout.workoutItems) {
+      const workoutItemsWithResults = await Promise.all(
+        workout.workoutItems.map(async item => {
+          const query = { client: clientId, workout: item._id };
+          const workoutResults = await WorkoutResults.find(query).lean();
+          return { ...item, workoutResults };
+        })
+      );
+
+      workout.workoutItems = workoutItemsWithResults;
+    }
+
     res.status(200).json(workout);
-  } else {
-    res.status(404).json({ message: "workout not found" });
+  } catch (error) {
+    console.error("Error fetching workout:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
-router.get("/favoriteWorkouts/:id", async (req,res,next)=> {
-  let query = {
-    client: req.params.id,
-    favorite: true
-  }
 
-  let workout = await Workout.find(query)
-  if (workout) {
-    res.status(200).json(workout);
-  } else {
-    res.status(404).json({ message: "workout not found" });
-  }
-})
+//Get All Client Workouts 
+router.get("/clientWorkouts/:id", async (req, res, next) => {
+  try {
+    const clientId = req.params.id;
 
-router.put("/addFavorite/:id", authUser, async (req,res,next)=> {
-  console.error(req.body)
+    // Fetch workouts for the client, sorted by date in descending order
+    const workouts = await Workout.find({ client: clientId }).sort({ date: -1 }).lean();
 
-  const workout = await Workout.findByIdAndUpdate(req.params.id, {$set: {favorite: req.body.favorite }})
-
-  if (workout) {
-    res.status(200).json(workout);
-  } else {
-    res.status(404).json({ message: "workout not found" });
-  }
-
-})
-
-router.get("/personalTrainingWorkouts/:id", (req, res, next) => {
-  // console.error(req.params)
-
-  let query = {
-    client: req.params.id,
-    date: {
-      "$gte": req.query.dateStart,
-      "$lt": req.query.dateEnd
+    if (!workouts || workouts.length === 0) {
+      return res.status(404).json({ message: "No workouts found for this client" });
     }
-  }
-  if (!req.query.dateStart && !req.query.dateEnd) {
-    delete query.date
-  }
 
-  Workout.find(query).then((workout) => {
-    if (workout) {
-      res.status(200).json(workout);
+    res.status(200).json(workouts);
+  } catch (error) {
+    console.error("Error fetching client workouts:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+
+
+router.get("/personalTrainingWorkouts/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { dateStart, dateEnd } = req.query;
+
+    // Build the query object
+    const query = { client: id };
+
+    // Add date range to the query if both start and end dates are provided
+    if (dateStart && dateEnd) {
+      query.date = {
+        "$gte": new Date(dateStart),
+        "$lt": new Date(dateEnd)
+      };
+    }
+
+    // Fetch workouts based on the query
+    const workouts = await Workout.find(query).lean();
+
+    if (!workouts || workouts.length === 0) {
+      return res.status(404).json({ message: "No workouts found" });
+    }
+
+    res.status(200).json(workouts);
+  } catch (error) {
+    console.error("Error fetching personal training workouts:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+
+router.get("/myWorkouts/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { dateStart, dateEnd } = req.query;
+
+    // Build the query object
+    const query = {
+      creator: id,
+      personalWorkout: '1'
+    };
+
+    // Add date range to the query if both start and end dates are provided
+    if (dateStart && dateEnd) {
+      query.date = {
+        "$gte": dateStart,
+        "$lt": dateEnd
+      };
+    }
+    console.log(query);
+
+    // Fetch workouts based on the query and sort them by date in descending order
+    const workouts = await Workout.find(query).sort({ date: -1 }).lean();
+
+    if (!query.date && (!workouts || workouts.length === 0)) {
+      return res.status(404).json({ message: "No workouts found" });
+    }
+
+    res.status(200).json(workouts);
+  } catch (error) {
+    console.error("Error fetching workouts:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+
+router.get("/programWorkouts/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Fetch workouts associated with the given program ID, sorted by date in descending order
+    const workouts = await Workout.find({ program: id }).sort({ date: -1 }).lean();
+
+    if (!workouts || workouts.length === 0) {
+      return res.status(404).json({ message: "No workouts found for this program" });
+    }
+
+    res.status(200).json(workouts);
+  } catch (error) {
+    console.error("Error fetching workouts:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+
+router.put("/clientComment/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const comment = req.body;
+
+    // Update the workout item with the given ID by pushing the new comment
+    const result = await Workout.updateOne(
+      { "workoutItems._id": id },
+      { $push: { "workoutItems.$.clientComments": comment } }
+    );
+
+    if (result.nModified > 0) {
+      res.status(200).json({ message: "Comment added successfully" });
     } else {
-      res.status(404).json({ message: "workout not found" });
+      res.status(404).json({ message: "Workout item not found" });
     }
-  });
-});
-
-router.get("/myWorkouts/:id", (req, res, next) => {
-  // console.error(req.query)
-  let query = {
-    creator: req.params.id,
-    personalWorkout: '1',
-    date: {
-
-      "$gte": req.query.dateStart,
-      "$lt": req.query.dateEnd
-    }
+  } catch (error) {
+    console.error("Error adding client comment:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
-  if (!req.query.dateStart && !req.query.dateEnd) {
-    delete query.date
+});
+
+
+router.delete("/:id", authUser, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const result = await Workout.deleteOne({ _id: id, creator: req.userData.userId });
+    console.log(result);
+    // if (result.deletedCount > 0) {
+    //   res.status(200).json({ message: "Deletion Successful" });
+    // } else {
+    //   res.status(401).json({ message: "Not Authorized or Workout Not Found" });
+    // }
+  } catch (error) {
+    console.error("Error during deletion:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
-  // return
-  Workout.find(query).sort({ date: -1 }).then((workout) => {
-    if (workout) {
-      // console.error(workout)
-      res.status(200).json(workout);
-    } else {
-      res.status(404).json({ message: "workout not found" });
-    }
-  });
 });
 
-router.get("/programWorkouts/:id", (req, res, next) => {
-  // console.error(req.params)
-  Workout.find({ program: req.params.id }).sort({ date: -1 }).then((workout) => {
-    if (workout) {
-      res.status(200).json(workout);
-    } else {
-      res.status(404).json({ message: "workout not found" });
-    }
-  });
-});
-
-router.put("/clientComment/:id", (req, res, next) => {
-  // console.error(req.body)
-  // console.error(req.params)
-  Workout.updateOne(
-    { "workoutItems._id": req.params.id },
-    {
-      $push:
-        { "workoutItems.$.clientComments": req.body }
-    }
-  ).then(res => {
-    // console.error(res)
-  })
-
-  // work.save().then(res=> {
-  //   console.error(res)
-  // })
-})
-
-router.delete("/:id", authUser, (req, res, next) => {
-  Workout.deleteOne({ _id: req.params.id, }).then((result) => {
-
-    // console.error(result)
-    if (result.n > 0) {
-      res.status(200).json({ message: "Deletion Successful" });
-    } else {
-      res.status(401).json({ message: "Not Authorized" });
-    }
-  });
-});
 
 module.exports = router;

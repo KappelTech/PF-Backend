@@ -10,25 +10,58 @@ const workoutItemSchema = mongoose.Schema({
   description: { type: String, },
   // comments: [commentSchema],
   comments: {type: String},
-  clientComments: [commentSchema]
+  clientComments: [commentSchema],
+  exercise: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Exercise',
+    required: false // Optional if the exercise is typed in
+  },
+  customExercise: {
+    type: String, // For custom exercises typed in by the user
+    required: false
+  },
+  sets: {
+    type: Number,
+    required: false
+  },
+  reps: {
+    type: Number,
+    required: false
+  },
+  weight: {
+    type: Number // Optional, depending on the type of exercise
+  },
+  time: {
+    type: Number // Optional, for timed exercises
+  },
+  result: {
+    type: String, // This can store either 'time' or 'reps' based on the exercise
+    required: false
+  },
+  type: {
+    type: String
+  },
+  scoreType: {
+    type: String
+  }
 });
 
 
 const workoutSchema = mongoose.Schema({
-  date: { type: Date },
+  date: { type: Date, default: Date.now },
+  updatedAt: {
+    type: Date
+  },
   name: { type: String, },
   creator: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   client: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   program: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Program",
+    ref: "Program", 
   },
   personalWorkout: { type: Boolean },
   favorite: {type: Boolean},
   workoutItems: [workoutItemSchema],
- 
-
-
 });
 
 module.exports = mongoose.model('Workout', workoutSchema);
