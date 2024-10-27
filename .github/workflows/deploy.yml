@@ -31,12 +31,12 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t progression-fitness-backend .
-          docker tag progression-fitness-backend:latest $AWS_ECR_REPOSITORY_URI:latest
+          docker tag progression-fitness-backend:latest ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
 
       # Step 4: Push the image to ECR
       - name: Push to ECR
         run: |
-          docker push $AWS_ECR_REPOSITORY_URI:latest
+          docker push ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
 
       # Step 5: Deploy to EC2
       # - name: Deploy to EC2
