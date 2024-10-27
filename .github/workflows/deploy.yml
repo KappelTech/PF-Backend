@@ -18,6 +18,8 @@ jobs:
         env:
           MONGO_USERNAME: ${{ secrets.MONGO_USERNAME }}
           MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+        run: |
+          echo "Deploying application..."
 
       # Step 2: Set up AWS credentials and region
       - name: Set up AWS CLI
