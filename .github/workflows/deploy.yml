@@ -48,23 +48,23 @@ jobs:
           target: /home/ec2-user/docker-compose.yml
 
         # Step 4: SSH to EC2 and Deploy Container
-      # - name: Deploy to EC2
-      #   uses: appleboy/ssh-action@v0.1.4
-      #   with:
-      #     host: ${{ secrets.EC2_HOST }}
-      #     username: ${{ secrets.EC2_USER }}
-      #     key: ${{ secrets.SSH_KEY }}
-      #     script: |
-      #       # Log in to ECR
-      #       aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPOSITORY_URI }}
-      #       # Pull the latest image
-      #       docker pull ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
-      #       # Stop and remove the old container if it exists
-      #       # docker stop progression-fitness-backend || true
-      #       # docker rm progression-fitness-backend || true
-      #       # # Run the new container
-      #       # docker run -d --name progression-fitness-backend -p 3000:3000 ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
-
-      #        # Run docker-compose for production setup
-      #       docker-compose -f docker-compose.yml down || true
-      #       docker-compose -f docker-compose.yml up -d app-prod
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # Log in to ECR
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPOSITORY_URI }}
+            # Pull the latest image
+            docker pull ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
+            # Stop and remove the old container if it exists
+            # docker stop progression-fitness-backend || true
+            # docker rm progression-fitness-backend || true
+            # # Run the new container
+            # docker run -d --name progression-fitness-backend -p 3000:3000 ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
+            cd /home/ec2-user
+             # Run docker-compose for production setup
+            docker-compose -f docker-compose.yml down || true
+            docker-compose -f docker-compose.yml up -d app-prod
