@@ -14,6 +14,11 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+       - name: Set up environment variables
+        env:
+          MONGO_USERNAME: ${{ secrets.MONGO_USERNAME }}
+          MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+
       # Step 2: Set up AWS credentials and region
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v3
