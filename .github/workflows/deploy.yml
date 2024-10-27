@@ -70,7 +70,10 @@ jobs:
             # Pull the latest image
             docker pull ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
             # Stop and remove the old container if it exists
-            docker stop progression-fitness-backend || true
-            docker rm progression-fitness-backend || true
-            # Run the new container
-            docker run -d --name progression-fitness-backend -p 3000:3000 ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
+            # docker stop progression-fitness-backend || true
+            # docker rm progression-fitness-backend || true
+            # # Run the new container
+            # docker run -d --name progression-fitness-backend -p 3000:3000 ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
+             # Run docker-compose for production setup
+            docker-compose -f docker-compose.yml down || true
+            docker-compose -f docker-compose.yml up -d app-prod
