@@ -17,6 +17,8 @@ services:
       context: .  # Build context (same directory)
     ports:
       - "3000:3000"  # Same port mapping for production
+    volumes:
+      - .:/app  # Mount current directory to /app in the container
     environment:
       - NODE_ENV=production  # Set NODE_ENV to production
     command: node server.js  # Command to run in production
