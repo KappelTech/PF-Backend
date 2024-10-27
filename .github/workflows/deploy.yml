@@ -12,12 +12,12 @@ jobs:
     steps:
       # Step 1: Check out the repository
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       # Step 2: Log in to AWS ECR
       - name: Log in to Amazon ECR
         id: ecr-login
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@v4
         with:
           region: ${{ secrets.AWS_REGION }}
 
