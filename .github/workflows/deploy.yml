@@ -1,0 +1,47 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      # Step 2: Log in to AWS ECR
+      - name: Log in to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          region: us-east-1
+
+      # Step 3: Build the Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t progression-fitness-backend .
+          docker tag progression-fitness-backend:latest 782497229499.dkr.ecr.us-east-1.amazonaws.com/docker/progressional-fitness:latest
+
+      # Step 4: Push the image to ECR
+      - name: Push to ECR
+        run: |
+          docker push 782497229499.dkr.ecr.us-east-1.amazonaws.com/docker/progressional-fitness:latest
+
+      # Step 5: Deploy to EC2
+      # - name: Deploy to EC2
+      #   env:
+      #     # Load ECR image URI for the deployment step
+      #     ECR_IMAGE_URI: 782497229499.dkr.ecr.us-east-1.amazonaws.com/docker/progressional-fitness:latest
+      #   run: |
+      #     # SSH into EC2 instance and pull & run the new image
+      #     ssh -o StrictHostKeyChecking=no -i "ec2-key-pair.pem" ec2-user@<ec2-instance-ip> << 'EOF'
+      #       docker pull $ECR_IMAGE_URI
+      #       docker stop progression-fitness-backend || true
+      #       docker rm progression-fitness-backend || true
+      #       docker run -d --name progression-fitness-backend -p 3000:3000 $ECR_IMAGE_URI
+      #     EOF
