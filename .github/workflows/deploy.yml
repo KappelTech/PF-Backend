@@ -52,10 +52,10 @@ jobs:
       #       docker run -d --name progression-fitness-backend -p 3000:3000 $ECR_IMAGE_URI
       #     EOF
 
-      - name: Add SSH Key
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
+      # - name: Add SSH Key
+      #   uses: webfactory/ssh-agent@v0.5.3
+      #   with:
+      #     ssh-private-key: ${{ secrets.SSH_KEY }}
 
           # Step 4: SSH to EC2 and Deploy Container
       - name: Deploy to EC2
