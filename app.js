@@ -14,7 +14,7 @@ const reportRoutes = require("./routes/reports");
 const favoriteWorkout = require("./routes/favoriteWorkouts");
 
 const app = express();
-const uri = mongoURI = `mongodb+srv://Brandon:kXUeDiNh3tl6zi6P@cluster0.titlm.mongodb.net/node-angular?retryWrites=true&w=majority`;
+const uri = mongoURI = `mongodb+srv://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@cluster0.titlm.mongodb.net/node-angular?retryWrites=true&w=majority`;
 console.log(uri);
 mongoose
   .connect(
