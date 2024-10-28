@@ -14,15 +14,6 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
-      - name: Set up environment variables
-        env:
-          MONGO_USERNAME: ${{ secrets.MONGO_USERNAME }}
-          MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
-        run: |
-          echo "Deploying application..."
-           echo "MONGO_USERNAME: ${{ secrets.MONGO_USERNAME }}"
-            echo "MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}"
-
       # Step 2: Set up AWS credentials and region
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v3
@@ -63,16 +54,26 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_KEY }}
+          envs: |
+            MONGO_USERNAME=${{ secrets.MONGO_USERNAME }}
+            MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}
           script: |
             # Log in to ECR
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPOSITORY_URI }}
             # Pull the latest image
             docker pull ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
-            Stop and remove the old container if it exists
+            # Stop and remove the old container if it exists
             docker stop progression-fitness-backend || true
             docker rm progression-fitness-backend || true
             # Run the new container
-            docker run -d --name progression-fitness-backend -p 3000:3000 ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
+            docker run -d \
+              --name progression-fitness-backend \
+             -p 3000:3000 \
+             -e MONGO_USERNAME=$MONGO_USERNAME \
+             -e MONGO_PASSWORD=$MONGO_PASSWORD \
+              ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
+
+
             # cd /home/ec2-user
             #  # Run docker-compose for production setup
             # docker-compose -f docker-compose.yml down || true
