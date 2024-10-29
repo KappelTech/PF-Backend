@@ -55,21 +55,16 @@ jobs:
             MONGO_USERNAME=${{ secrets.MONGO_USERNAME }}
             MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}
           script: |
-            # Step 1: Copy docker-compose.yml to EC2 instance
-            scp -o StrictHostKeyChecking=no ./docker-compose.yml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/docker-compose.yml
-          
-            # Step 2: SSH to EC2 and perform Docker operations
-            ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            # Log in to ECR
+            # Step 1: Move the docker-compose.yml to the correct directory on the EC2 instance
+            cp ./docker-compose.yml /home/ec2-user/docker-compose.yml
+            
+            # Step 2: Log in to Amazon ECR
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPOSITORY_URI }}
 
-            # Pull the latest image from ECR
+            # Step 3: Pull the latest Docker image
             docker pull ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
 
-            # Navigate to the directory where docker-compose.yml is located
-            cd /home/${{ secrets.EC2_USER }}
-
-            # Step 3: Run Docker Compose with production setup
+            # Step 4: Run Docker Compose from /home/ec2-user
+            cd /home/ec2-user
             docker-compose -f docker-compose.yml down || true
             docker-compose -f docker-compose.yml up -d app-prod
-            EOF
