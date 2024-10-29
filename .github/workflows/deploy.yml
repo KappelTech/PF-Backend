@@ -49,24 +49,7 @@ jobs:
           envs: |
             MONGO_USERNAME=${{ secrets.MONGO_USERNAME }}
             MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}
-          # script: |
-          #   # Log in to ECR
-          #   aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPOSITORY_URI }}
-          #   # Pull the latest image
-          #   docker pull ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
-          #   # Stop and remove the old container if it exists
-          #   docker stop progression-fitness-backend || true
-          #   docker rm progression-fitness-backend || true
-          #   # Run the new container
-          #   docker run -d \
-          #     --name progression-fitness-backend \
-          #     --restart always \
-          #    -p 80:3000 \
-          #    -e MONGO_USERNAME=${{ secrets.MONGO_USERNAME }} \
-          #    -e MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }} \
-          #     ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
-
-        script: |
+          script: |
           # Step 1: Copy docker-compose.yml to EC2 instance
           scp -o StrictHostKeyChecking=no ./docker-compose.yml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/docker-compose.yml
           
