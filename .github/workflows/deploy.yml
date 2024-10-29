@@ -50,7 +50,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_KEY }}
           source: "./docker-compose.yml"
-          target: "/home/ec2-user/docker-compose.yml"
+          target: "/home/ec2-user"
 
 
         # Step 4: SSH to EC2 and Deploy Container
