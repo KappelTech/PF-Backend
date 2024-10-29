@@ -52,6 +52,16 @@ jobs:
           source: "./docker-compose.yml"
           target: "/home/ec2-user"
 
+      - name: Create .env file on EC2
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            echo "MONGO_USERNAME=${{ secrets.MONGO_USERNAME }}" > /home/ec2-user/.env
+            echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> /home/ec2-user/.env
+
 
         # Step 4: SSH to EC2 and Deploy Container
       - name: Deploy to EC2
@@ -60,9 +70,6 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.SSH_KEY }}
-          envs: |
-            MONGO_USERNAME=${{ secrets.MONGO_USERNAME }}
-            MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}
           script: |
             # Step 2: Log in to Amazon ECR
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPOSITORY_URI }}
@@ -72,5 +79,5 @@ jobs:
 
             # Step 4: Run Docker Compose from /home/ec2-user
             cd /home/ec2-user
-            docker-compose -f docker-compose.yml down || true
-            docker-compose -f docker-compose.yml up -d app-prod
+            docker-compose --env-file .env -f docker-compose.yml down || true
+            docker-compose --env-file .env -f docker-compose.yml up -d app-prod
