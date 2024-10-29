@@ -38,6 +38,11 @@ jobs:
         run: |
           docker push ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
 
+      - name: Install SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
 
         # Step 4: SSH to EC2 and Deploy Container
       - name: Deploy to EC2
