@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "strict": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    // "forceConsistentCasingInFileNames": true
+    "noImplicitAny": false,      // Allow implicit any
+    "strictNullChecks": false,   // Allow null/undefined in non-nullable types
+    "noImplicitThis": false,     // Allow implicit this
+    "strictFunctionTypes": false, // Relax function parameter checks
+    "alwaysStrict": false,       // Disable strict mode in all files
+    "noUnusedLocals": false,     // Disable unused local variable checks
+    "noUnusedParameters": false 
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}

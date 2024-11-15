@@ -1,25 +1,25 @@
-version: '3.8'  # Specify the version of the Docker Compose file format
+version: '3.8' # Specify the version of the Docker Compose file format
 
 services:
-  app:  # Development service
+  app: # Development service
     build:
-      context: .  # Build context (directory with Dockerfile)
+      context: . # Build context (directory with Dockerfile)
     ports:
-      - "3000:3000"  # Map port 3000 on the host to port 3000 in the container
+      - '3000:3000' # Map port 3000 on the host to port 3000 in the container
     volumes:
-      - .:/app  # Mount current directory to /app in the container
+      - .:/app # Mount current directory to /app in the container
     environment:
-      - NODE_ENV=development  # Set NODE_ENV to development
-    command: ./node_modules/.bin/nodemon server.js   # Command to run in development
+      - NODE_ENV=development # Set NODE_ENV to development
+    command: ./node_modules/.bin/nodemon server.js # Command to run in development
 
-  app-prod:  # Production service
+  app-prod: # Production service
     build:
-      context: .  # Build context (same directory)
+      context: . # Build context (same directory)
     ports:
-      - "80:3000"  # Same port mapping for production
+      - '80:3000' # Same port mapping for production
     environment:
-      - NODE_ENV=production  # Set NODE_ENV to production
-      - MONGO_USERNAME=${MONGO_USERNAME}  # Load environment variables
+      - NODE_ENV=production # Set NODE_ENV to production
+      - MONGO_USERNAME=${MONGO_USERNAME} # Load environment variables
       - MONGO_PASSWORD=${MONGO_PASSWORD}
-    command: node server.js  # Command to run in production
+    command: node server.js # Command to run in production
     restart: always
