@@ -1,66 +1,33 @@
-name: Deploy to AWS
+name: Deploy Nodejs Application
 
 on:
   push:
     branches:
+      - main
       - master
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      # Step 1: Check out the repository
-      - name: Check out code
+      - name: Checkout source
         uses: actions/checkout@v4
+      - name: Create .env file
+        run: echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" "MONGO_USERNAME=${{ secrets.MONGO_USERNAME }}" >> .env
+      - name: Login to docker hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build docker image
+        run: docker build -t bkappel16/progressional-fitness-backend .
+      - name: Publish image to docker hub
+        run: docker push bkappel16/progressional-fitness-backend:latest
 
-      # Step 2: Set up AWS credentials and region
-      - name: Set up AWS CLI
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }} # Set your AWS region here
-
-      # Step 2: Log in to AWS ECR
-      - name: Log in to Amazon ECR
-        id: ecr-login
-        uses: aws-actions/amazon-ecr-login@v1
-
-      # Step 3: Build the Docker image
-      - name: Build Docker image
-        run: |
-          docker build -t progression-fitness-backend .
-          docker tag progression-fitness-backend:latest ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
-
-      # Step 4: Push the image to ECR
-      - name: Push to ECR
-        run: |
-          docker push ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
-
-        # Step 4: SSH to EC2 and Deploy Container
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.4
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          envs: |
-            MONGO_USERNAME=${{ secrets.MONGO_USERNAME }}
-            MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}
-          script: |
-            # Log in to ECR
-            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ECR_REPOSITORY_URI }}
-            # Pull the latest image
-            docker pull ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
-            # Stop and remove the old container if it exists
-            docker stop progression-fitness-backend || true
-            docker rm progression-fitness-backend || true
-            # Run the new container
-            docker run -d \
-              --name progression-fitness-backend \
-              --restart always \
-             -p 80:3000 \
-             -e MONGO_USERNAME=${{ secrets.MONGO_USERNAME }} \
-             -e MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }} \
-              ${{ secrets.AWS_ECR_REPOSITORY_URI }}:latest
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - name: Pull image from docker hub
+        run: docker pull bkappel16/progressional-fitness-backend:latest
+      - name: Delete old container
+        run: docker rm -f progressional-fitness-backend
+      - name: Run docker container
+        run: docker run -d -p 80:3000 --name progressional-fitness-backend progressional-fitness-backend
