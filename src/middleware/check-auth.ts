@@ -7,7 +7,6 @@ export function authUser(req, res, next) {
     req.userData = { email: decodedToken.email, userId: decodedToken.userId };
     next();
   } catch (error) {
-    console.log('testing 12345');
     res.status(401).json({ message: 'Auth Failed!!!' });
   }
 }

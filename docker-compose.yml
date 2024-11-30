@@ -10,7 +10,7 @@ services:
       - .:/app # Mount current directory to /app in the container
     environment:
       - NODE_ENV=development # Set NODE_ENV to development
-    command: ./node_modules/.bin/nodemon server.js # Command to run in development
+    command: ./node_modules/.bin/nodemon server.ts # Command to run in development
 
   app-prod: # Production service
     build:
@@ -21,5 +21,5 @@ services:
       - NODE_ENV=production # Set NODE_ENV to production
       - MONGO_USERNAME=${MONGO_USERNAME} # Load environment variables
       - MONGO_PASSWORD=${MONGO_PASSWORD}
-    command: node server.js # Command to run in production
+    command: node server.ts # Command to run in production
     restart: always

@@ -25,7 +25,6 @@ router.get('/sendCode/:email', (req, res, next) => {
     let code = betweenRandomNumber();
     console.error('code:', code);
 
-    //   let id = nanoid()
 
     let token = new Token({
       userId: user._id,

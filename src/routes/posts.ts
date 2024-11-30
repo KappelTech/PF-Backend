@@ -1,6 +1,5 @@
 // import express from 'express';
 import { Router } from 'express'
-import multer from 'multer';
 import Post from '../models/post';
 // import { authUser } from '../middleware/check-auth';
 
@@ -12,41 +11,7 @@ const MIME_TYPE_MAP = {
   'image/jpg': 'jpg',
 };
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const isValid = MIME_TYPE_MAP[file.mimetype];
-    let error = new Error('Invalid Mime Type');
-    if (isValid) {
-      error = null;
-    }
-    cb(error, 'backend/images');
-  },
-  filename: (req, file, cb) => {
-    const name = file.originalname.toLowerCase().split(' ').join('-');
-    const ext = MIME_TYPE_MAP[file.mimetype];
-    cb(null, name + '-' + Date.now() + '.' + ext);
-  },
-});
 
-// router.post(
-//   "",
-//   authUser,
-//   multer({ storage: storage }).single("image"),
-//   (req, res, next) => {
-//     const post = new Post({
-//       title: req.body.title,
-//       content: req.body.content,
-//       creator: req.userData.userId
-//     });
-
-//     post.save().then((createdPost) => {
-//       res.status(201).json({
-//         message: "Post Added Successfully",
-//         postId: createdPost._id,
-//       });
-//     });
-//   }
-// );
 
 router.post('',(req, res, next) => {
   // const post = new Post({
