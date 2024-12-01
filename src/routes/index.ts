@@ -7,13 +7,18 @@ import workoutItemRoutes from './workoutItems';
 import passwordReset from './passwordReset';
 import reportRoutes from './reports';
 import favoriteWorkout from './favoriteWorkouts';
+import Ping from "./ping";
 
 import express from 'express';
 
 const setupRoutes = (app, auth ) => {
 const publicRouter = express.Router();
+publicRouter.use('/ping', Ping); // Ping route
 publicRouter.use('/auth', authRoutes); // Login/signup
 publicRouter.use('/passwordReset', passwordReset); // Password reset
+
+app.use('/api', publicRouter); // Public routes
+
 
 // Protected routes
 const protectedRouter = express.Router();
@@ -27,7 +32,6 @@ protectedRouter.use('/reports', reportRoutes);
 protectedRouter.use('/favoriteWorkouts', favoriteWorkout);
 
 // Mount routers
-app.use('/api', publicRouter); // Public routes
 app.use('/api', protectedRouter); // Protected routes
 
 }
