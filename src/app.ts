@@ -25,10 +25,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 const corsOptions = {
-  origin: 'http://localhost:5173', // Allow requests from your frontend
+  origin: '*', // Allow requests from your frontend
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Allowed HTTP methods
   allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization, skipLoading',  // Allowed headers
-  credentials: true, // Allow cookies if needed
+  credentials: false, // Allow cookies if needed
 };
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
