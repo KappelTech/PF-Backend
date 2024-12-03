@@ -16,6 +16,10 @@ jobs:
         run: |
           echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> .env
           echo "MONGO_USERNAME=${{ secrets.MONGO_USERNAME }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "GPT_KEY=${{ secrets.GPT_KEY }}" >> .env
+          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
+          echo "FRONTEND_ORIGIN=${{ secrets.FRONTEND_ORIGIN }}" >> .env
       - name: Login to docker hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: Build docker image
