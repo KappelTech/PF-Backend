@@ -4,7 +4,7 @@ import app from './app'; // Assuming you have a valid express app
 // Normalize the port to ensure it's a number or fallback to default
 const normalizePort = (val: string): number => {
   const port = parseInt(val, 10);
-  return isNaN(port) ? 3000 : port; // Defaults to 3000 if invalid
+  return isNaN(port) ? 80 : port; // Defaults to 3000 if invalid
 };
 
 const onError = (error: any) => {
