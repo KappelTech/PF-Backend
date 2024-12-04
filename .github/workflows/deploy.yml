@@ -28,14 +28,15 @@ jobs:
       - name: Delete old container
         run: docker rm -f progressional-fitness-backend || true
       - name: Run docker container
-        run: docker run -d --restart unless-stopped \
-        -p 80:80 \
-        -e MONGO_PASSWORD="${{ secrets.MONGO_PASSWORD }}" \
-        -e MONGO_USERNAME="${{ secrets.MONGO_USERNAME }}" \
-        -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
-        -e GPT_KEY="${{ secrets.GPT_KEY }}" \
-        -e NODE_ENV="${{ secrets.NODE_ENV }}" \
-        -e FRONTEND_ORIGIN="${{ secrets.FRONTEND_ORIGIN }}" \
-        -e PORT="${{ secrets.PORT }}" \
-        --name progressional-fitness-backend \
-        bkappel16/progressional-fitness-backend:latest
+        run: |
+          docker run -d --restart unless-stopped \
+            -p 80:80 \
+            -e MONGO_PASSWORD="${{ secrets.MONGO_PASSWORD }}" \
+            -e MONGO_USERNAME="${{ secrets.MONGO_USERNAME }}" \
+            -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+            -e GPT_KEY="${{ secrets.GPT_KEY }}" \
+            -e NODE_ENV="${{ secrets.NODE_ENV }}" \
+            -e FRONTEND_ORIGIN="${{ secrets.FRONTEND_ORIGIN }}" \
+            -e PORT="${{ secrets.PORT }}" \
+            --name progressional-fitness-backend \
+            bkappel16/progressional-fitness-backend:latest
