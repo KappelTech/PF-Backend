@@ -12,15 +12,6 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
-      - name: Create .env file
-        run: |
-          echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> .env
-          echo "MONGO_USERNAME=${{ secrets.MONGO_USERNAME }}" >> .env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-          echo "GPT_KEY=${{ secrets.GPT_KEY }}" >> .env
-          echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
-          echo "FRONTEND_ORIGIN=${{ secrets.FRONTEND_ORIGIN }}" >> .env
-          echo "PORT=${{ secrets.PORT }}" >> .env
       - name: Login to docker hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: Build docker image
@@ -37,4 +28,12 @@ jobs:
       - name: Delete old container
         run: docker rm -f progressional-fitness-backend
       - name: Run docker container
-        run: docker run -d --restart unless-stopped -p 80:80 --name progressional-fitness-backend bkappel16/progressional-fitness-backend:latest
+        run: docker run -d --restart unless-stopped -p 80:80 \
+          -e MONGO_PASSWORD="${{ secrets.MONGO_PASSWORD }}" \
+          -e MONGO_USERNAME="${{ secrets.MONGO_USERNAME }}" \
+          -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+          -e GPT_KEY="${{ secrets.GPT_KEY }}" \
+          -e NODE_ENV="${{ secrets.NODE_ENV }}" \
+          -e FRONTEND_ORIGIN="${{ secrets.FRONTEND_ORIGIN }}" \
+          -e PORT="${{ secrets.PORT }}" \
+          --name progressional-fitness-backend bkappel16/progressional-fitness-backend:latest
