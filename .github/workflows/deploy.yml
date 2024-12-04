@@ -20,6 +20,7 @@ jobs:
           echo "GPT_KEY=${{ secrets.GPT_KEY }}" >> .env
           echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> .env
           echo "FRONTEND_ORIGIN=${{ secrets.FRONTEND_ORIGIN }}" >> .env
+          echo "PORT=${{ secrets.PORT }}" >> .env
       - name: Login to docker hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
       - name: Build docker image
