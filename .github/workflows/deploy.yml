@@ -36,4 +36,5 @@ jobs:
           -e NODE_ENV="${{ secrets.NODE_ENV }}" \
           -e FRONTEND_ORIGIN="${{ secrets.FRONTEND_ORIGIN }}" \
           -e PORT="${{ secrets.PORT }}" \
-          --name progressional-fitness-backend bkappel16/progressional-fitness-backend:latest
+          --name progressional-fitness-backend \
+          bkappel16/progressional-fitness-backend:latest
