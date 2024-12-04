@@ -36,4 +36,4 @@ jobs:
       - name: Delete old container
         run: docker rm -f progressional-fitness-backend
       - name: Run docker container
-        run: docker run -d --restart unless-stopped -p 80:3000 --name progressional-fitness-backend bkappel16/progressional-fitness-backend:latest
+        run: docker run -d --restart unless-stopped -p 80:80 --name progressional-fitness-backend bkappel16/progressional-fitness-backend:latest

@@ -24,11 +24,11 @@ const onError = (error: any) => {
   }
 };
 
-const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT);
 app.set('port', port);
 
 const server = http.createServer(app);
 server.on('error', onError);
 server.listen(port, '0.0.0.0', () => {
-  console.log(`Server is running on http://0.0.0.0:${port} and environment ${process.env.NODE_ENV}`);
+  console.log(`Server is running on http:${port} and environment ${process.env.NODE_ENV}`);
 });
