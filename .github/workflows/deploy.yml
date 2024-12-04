@@ -28,7 +28,8 @@ jobs:
       - name: Delete old container
         run: docker rm -f progressional-fitness-backend || true
       - name: Run docker container
-        run: docker run -d --restart unless-stopped -p 80:80 \
+        run: docker run -d --restart unless-stopped \
+          -p 80:80 \
           -e MONGO_PASSWORD="${{ secrets.MONGO_PASSWORD }}" \
           -e MONGO_USERNAME="${{ secrets.MONGO_USERNAME }}" \
           -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
