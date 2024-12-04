@@ -26,7 +26,7 @@ jobs:
       - name: Pull image from docker hub
         run: docker pull bkappel16/progressional-fitness-backend:latest
       - name: Delete old container
-        run: docker rm -f progressional-fitness-backend
+        run: docker rm -f progressional-fitness-backend || true
       - name: Run docker container
         run: docker run -d --restart unless-stopped -p 80:80 \
           -e MONGO_PASSWORD="${{ secrets.MONGO_PASSWORD }}" \
