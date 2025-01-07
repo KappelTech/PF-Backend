@@ -46,7 +46,7 @@ jobs:
         env:
           KUBE_CONFIG: ${{ secrets.KUBECONFIG }}
         with:
-          args: set image deployment/pf-api bkappel16/progressional-fitness-backend:latest
+          args: set image deployment/pf-api pf-api=bkappel16/progressional-fitness-backend:latest
 
       - name: Check Rollout Status
         uses: actions-hub/kubectl@master
