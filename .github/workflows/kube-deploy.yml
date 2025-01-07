@@ -27,6 +27,7 @@ jobs:
       - name: Push Docker image
         run: docker push bkappel16/progressional-fitness-backend:latest
 
+      # Step 5: Create or Update Kubernetes secrets (if needed)
       - name: Create Kubernetes secrets
         run: |
           kubectl create secret generic my-app-secrets \
@@ -39,11 +40,9 @@ jobs:
             --from-literal=PORT="${{ secrets.PORT }}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      # Step 5: Update Kubernetes deployment
-      - name: Update Kubernetes Deployment
-        uses: appleboy/k8s-deploy-action@v1.6.0
+      # Step 6: Update Kubernetes Deployment with new image using kubectl-action
+      - name: Deploy to Kubernetes
+        uses: kubernetes-actions/kubectl-action@v2.4.0
         with:
           kubeconfig: ${{ secrets.KUBECONFIG }}
-          images: bkappel16/progressional-fitness-backend:latest
-          namespace: default
-          manifests: ./kubernetes/deployment.yaml
+          args: apply -f ./kubernetes/deployment.yaml
