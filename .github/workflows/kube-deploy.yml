@@ -41,16 +41,16 @@ jobs:
       #       --dry-run=client -o yaml | kubectl apply -f -
 
       # Step 6: Update Kubernetes Deployment with new image using kubectl-action
-      # - name: Deploy to Kubernetes
-      #   uses: azure/k8s-deploy@v3
-      #   with:
-      #     kubeconfig: ${{ secrets.KUBECONFIG }}
-      #     namespace: default
-      #     manifests: ./kubernetes/deployment.yaml
-      #     images: bkappel16/progressional-fitness-backend:latest
-      - name: Trigger deploy
+      - name: Update Kubernetes Deployment
         uses: actions-hub/kubectl@master
         env:
           KUBE_CONFIG: ${{ secrets.KUBECONFIG }}
         with:
-          args: apply -f deployment.yaml
+          args: set image deployment/pf-api bkappel16/progressional-fitness-backend:latest
+
+      - name: Check Rollout Status
+        uses: actions-hub/kubectl@master
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBECONFIG }}
+        with:
+          args: rollout status deployment/pf-api
