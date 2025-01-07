@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pf-api
+  namespace: default
+  labels:
+    app: pf-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pf-api
+  template:
+    metadata:
+      labels:
+        app: pf-api
+    spec:
+      containers:
+        - name: pf-api
+          image: bkappel16/progressional-fitness-backend:latest
+          ports:
+            - containerPort: 80 # Update if your app uses a different port
+          resources:
+            requests:
+              memory: '128Mi' # Minimum memory required to start
+              cpu: '250m' # Minimum CPU required to start
+            limits:
+              memory: '256Mi' # Maximum memory the Pod can use
+              cpu: '500m' # Maximum CPU the Pod can use
