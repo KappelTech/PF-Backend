@@ -50,7 +50,7 @@ jobs:
         env:
           KUBE_CONFIG: ${{ secrets.KUBECONFIG }}
         with:
-          args: set image deployment/pf-api pf-api-container=bkappel16/progressional-fitness-backend:${{ github.sha }}
+          args: set image deployment/pf-api pf-api=bkappel16/progressional-fitness-backend:${{ github.sha }}
 
       # Step 6: Apply Kubernetes manifests
       - name: Apply Kubernetes Manifests
