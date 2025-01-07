@@ -44,14 +44,23 @@ jobs:
       #       --from-literal=PORT="${{ secrets.PORT }}" \
       #       --dry-run=client -o yaml | kubectl apply -f -
 
-      # Step 6: Update Kubernetes Deployment with new image using kubectl-action
+      # Step 5: Update Kubernetes Deployment with the new image
       - name: Update Kubernetes Deployment
+        uses: actions-hub/kubectl@master
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBECONFIG }}
+        with:
+          args: set image deployment/pf-api pf-api-container=bkappel16/progressional-fitness-backend:${{ github.sha }}
+
+      # Step 6: Apply Kubernetes manifests
+      - name: Apply Kubernetes Manifests
         uses: actions-hub/kubectl@master
         env:
           KUBE_CONFIG: ${{ secrets.KUBECONFIG }}
         with:
           args: apply -f ./kubernetes/deployment.yaml
 
+      # Step 7: Check Rollout Status
       - name: Check Rollout Status
         uses: actions-hub/kubectl@master
         env:
