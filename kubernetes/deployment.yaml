@@ -18,6 +18,7 @@ spec:
       containers:
         - name: pf-api
           image: bkappel16/progressional-fitness-backend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 80 # Update if your app uses a different port
           resources:
