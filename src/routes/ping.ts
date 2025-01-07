@@ -3,7 +3,7 @@ const router = express.Router();
 
 router.get('',(req, res, next) => {
     res.status(201).json({
-        message: `Your're pinging, I'm here, i hope, yes!!!!`,
+        message: `Your're pinging, I'm here!!!!, hello?`,
     });
 })
 
