@@ -48,3 +48,9 @@ jobs:
       #     namespace: default
       #     manifests: ./kubernetes/deployment.yaml
       #     images: bkappel16/progressional-fitness-backend:latest
+      - name: Trigger deploy
+        uses: Consensys/kubernetes-action@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBECONFIG }}
+        with:
+          args: apply deployment.yaml
