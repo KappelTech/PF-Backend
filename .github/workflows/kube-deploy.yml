@@ -51,12 +51,12 @@ jobs:
           args: set image deployment/pf-api pf-api=bkappel16/progressional-fitness-backend:${{ github.sha }}
 
       # Step 6: Apply Kubernetes manifests
-      - name: Apply Kubernetes Manifests
-        uses: actions-hub/kubectl@master
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBECONFIG }}
-        with:
-          args: apply -f ./kubernetes/deployment.yaml
+      # - name: Apply Kubernetes Manifests
+      #   uses: actions-hub/kubectl@master
+      #   env:
+      #     KUBE_CONFIG: ${{ secrets.KUBECONFIG }}
+      #   with:
+      #     args: apply -f ./kubernetes/deployment.yaml
 
       # Step 7: Check Rollout Status
       - name: Check Rollout Status
