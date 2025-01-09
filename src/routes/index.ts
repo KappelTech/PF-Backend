@@ -17,6 +17,8 @@ publicRouter.use('/ping', Ping); // Ping route
 publicRouter.use('/auth', authRoutes); // Login/signup
 publicRouter.use('/passwordReset', passwordReset); // Password reset
 publicRouter.use('/user', userRoutes);
+publicRouter.use('/posts', postsRoutes);
+
 
 app.use('/api', publicRouter); // Public routes
 
@@ -24,7 +26,7 @@ app.use('/api', publicRouter); // Public routes
 // Protected routes
 const protectedRouter = express.Router();
 protectedRouter.use(auth); // Apply auth middleware to all protected routes
-protectedRouter.use('/posts', postsRoutes);
+// protectedRouter.use('/posts', postsRoutes);
 // protectedRouter.use('/user', userRoutes);
 protectedRouter.use('/workouts', workoutsRoutes);
 protectedRouter.use('/programs', programRoutes);
