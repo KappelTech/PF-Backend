@@ -31,16 +31,20 @@ jobs:
 
       # Step 5: Create or Update Kubernetes secrets (if needed)
       - name: Create Kubernetes secrets
-        run: |
-          kubectl create secret generic my-app-secrets \
-            --from-literal=MONGO_PASSWORD="${{ secrets.MONGO_PASSWORD }}" \
-            --from-literal=MONGO_USERNAME="${{ secrets.MONGO_USERNAME }}" \
-            --from-literal=JWT_SECRET="${{ secrets.JWT_SECRET }}" \
-            --from-literal=GPT_KEY="${{ secrets.GPT_KEY }}" \
-            --from-literal=NODE_ENV="${{ secrets.NODE_ENV }}" \
-            --from-literal=FRONTEND_ORIGIN="${{ secrets.FRONTEND_ORIGIN }}" \
-            --from-literal=PORT="${{ secrets.PORT }}" \
-            --dry-run=client -o yaml | kubectl apply -f -
+        uses: actions-hub/kubectl@master
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBECONFIG }}
+        with:
+          args: |
+            create secret generic pf-api-secrets \
+              --from-literal=MONGO_PASSWORD="${{ secrets.MONGO_PASSWORD }}" \
+              --from-literal=MONGO_USERNAME="${{ secrets.MONGO_USERNAME }}" \
+              --from-literal=JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+              --from-literal=GPT_KEY="${{ secrets.GPT_KEY }}" \
+              --from-literal=NODE_ENV="${{ secrets.NODE_ENV }}" \
+              --from-literal=FRONTEND_ORIGIN="${{ secrets.FRONTEND_ORIGIN }}" \
+              --from-literal=PORT="${{ secrets.PORT }}" \
+              --dry-run=client -o yaml | kubectl apply -f -
 
       # Step 6: Update Kubernetes Deployment with the new image
       - name: Update Kubernetes Deployment Image
