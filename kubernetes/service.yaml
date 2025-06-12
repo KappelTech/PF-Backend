@@ -1,11 +1,24 @@
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: pf-api
+# spec:
+#   ports:
+#     - port: 80
+#       targetPort: 80
+#       protocol: TCP
+#   selector:
+#     app: pf-api
 apiVersion: v1
 kind: Service
 metadata:
-  name: pf-api
+  name: pf-service
+  namespace: default
 spec:
-  ports:
-    - port: 80
-      targetPort: 80
-      protocol: TCP
   selector:
     app: pf-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP

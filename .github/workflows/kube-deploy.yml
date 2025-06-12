@@ -18,53 +18,62 @@ jobs:
       # Step 2: Login to Docker Hub
       - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        if: success()
 
       # Step 3: Build Docker image with a unique tag
       - name: Build Docker image
-        run: |
-          docker build -t bkappel16/progressional-fitness-backend:${{ github.sha }} .
+        run: docker build -t bkappel16/progressional-fitness-backend:${{ github.sha }} .
+        if: success()
 
       # Step 4: Push Docker image to Docker Hub
       - name: Push Docker image
-        run: |
-          docker push bkappel16/progressional-fitness-backend:${{ github.sha }}
+        run: docker push bkappel16/progressional-fitness-backend:${{ github.sha }}
+        if: success()
 
-      # Step 5: Create or Update Kubernetes secrets
-      - name: Create or Update Kubernetes Secrets
+      # Step 5: Configure kubectl with kubeconfig
+      - name: Configure kubectl
         run: |
           echo "${{ secrets.KUBECONFIG }}" | base64 --decode > kubeconfig
-          kubectl --kubeconfig=kubeconfig create secret generic pf-api-secrets \
+          export KUBECONFIG=./kubeconfig
+        if: success()
+
+      # Step 6: Create or Update Kubernetes ConfigMap for non-sensitive env vars
+      - name: Create or Update Kubernetes ConfigMap
+        run: |
+          kubectl --kubeconfig=./kubeconfig create configmap pf-api-config \
+            --from-literal=NODE_ENV="${{ secrets.NODE_ENV }}" \
+            --from-literal=FRONTEND_ORIGIN="${{ secrets.FRONTEND_ORIGIN }}" \
+            --from-literal=PORT="${{ secrets.PORT }}" \
+            --dry-run=client -o yaml | kubectl --kubeconfig=./kubeconfig apply -f -
+        if: success()
+
+      # Step 7: Create or Update Kubernetes Secrets for sensitive env vars
+      - name: Create or Update Kubernetes Secrets
+        run: |
+          kubectl --kubeconfig=./kubeconfig create secret generic pf-api-secrets \
             --from-literal=MONGO_PASSWORD="${{ secrets.MONGO_PASSWORD }}" \
             --from-literal=MONGO_USERNAME="${{ secrets.MONGO_USERNAME }}" \
             --from-literal=JWT_SECRET="${{ secrets.JWT_SECRET }}" \
             --from-literal=GPT_KEY="${{ secrets.GPT_KEY }}" \
-            --from-literal=NODE_ENV="${{ secrets.NODE_ENV }}" \
-            --from-literal=FRONTEND_ORIGIN="${{ secrets.FRONTEND_ORIGIN }}" \
-            --from-literal=PORT="${{ secrets.PORT }}" \
-            --dry-run=client -o yaml | kubectl apply -f -
-        env:
-          KUBECONFIG: ./kubeconfig
+            --dry-run=client -o yaml | kubectl --kubeconfig=./kubeconfig apply -f -
+        if: success()
 
-      # Step 6: Update Kubernetes Deployment with the new image
+      # Step 8: Apply Kubernetes manifests
+      - name: Apply Kubernetes Manifests
+        run: |
+          kubectl --kubeconfig=./kubeconfig apply -f ./kubernetes/deployment.yaml
+          kubectl --kubeconfig=./kubeconfig apply -f ./kubernetes/service.yaml
+          kubectl --kubeconfig=./kubeconfig apply -f ./kubernetes/ingress.yaml
+        if: success()
+
+      # Step 9: Update Kubernetes Deployment with the new image
       - name: Update Kubernetes Deployment Image
-        uses: actions-hub/kubectl@master
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBECONFIG }}
-        with:
-          args: set image deployment/pf-api pf-api=bkappel16/progressional-fitness-backend:${{ github.sha }}
+        run: |
+          kubectl --kubeconfig=./kubeconfig set image deployment/pf-api pf-api=bkappel16/progressional-fitness-backend:${{ github.sha }}
+        if: success()
 
-      # Step 7: Apply Kubernetes manifests
-      # - name: Apply Kubernetes Manifests
-      #   uses: actions-hub/kubectl@master
-      #   env:
-      #     KUBE_CONFIG: ${{ secrets.KUBECONFIG }}
-      #   with:
-      #     args: apply -f ./kubernetes/deployment.yaml
-
-      # Step 8: Check Rollout Status
+      # Step 10: Check Rollout Status
       - name: Check Rollout Status
-        uses: actions-hub/kubectl@master
-        env:
-          KUBE_CONFIG: ${{ secrets.KUBECONFIG }}
-        with:
-          args: rollout status deployment/pf-api
+        run: |
+          kubectl --kubeconfig=./kubeconfig rollout status deployment/pf-api
+        if: success()

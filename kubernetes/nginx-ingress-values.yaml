@@ -1,0 +1,6 @@
+controller:
+  service:
+    type: NodePort
+    nodePorts:
+      http: 30080 # Customize if needed, or omit to auto-assign
+      https: 30443 # Optional: For HTTPS if you enable TLS later

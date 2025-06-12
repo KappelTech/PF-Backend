@@ -9,6 +9,7 @@ const normalizePort = (val: string): number => {
 
 const onError = (error: any) => {
   if (error.syscall !== 'listen') throw error;
+  console.log('err', error)
 
   const bind = typeof error.address === 'string' ? `pipe ${error.address}` : `port ${error.port}`;
   switch (error.code) {

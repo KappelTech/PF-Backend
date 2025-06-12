@@ -6,7 +6,7 @@ metadata:
   labels:
     app: pf-api
 spec:
-  replicas: 1
+  replicas: 2
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -24,15 +24,17 @@ spec:
         - name: pf-api
           image: bkappel16/progressional-fitness-backend:latest
           imagePullPolicy: Always
-          envFrom:
-            - secretRef:
-                name: pf-api-secrets
-          ports:
-            - containerPort: 80 # Update if your app uses a different port
-          resources:
-            requests:
-              memory: '128Mi' # Minimum memory required to start
-              cpu: '250m' # Minimum CPU required to start
-            limits:
-              memory: '256Mi' # Maximum memory the Pod can use
-              cpu: '500m' # Maximum CPU the Pod can use
+          # envFrom:
+          #   - configMapRef:
+          #     name: pf-api-config
+          #   - secretRef:
+          #       name: pf-api-secrets
+          # ports:
+          #   - containerPort: 80 # Update if your app uses a different port
+          # resources:
+          #   requests:
+          #     memory: '128Mi' # Minimum memory required to start
+          #     cpu: '250m' # Minimum CPU required to start
+          #   limits:
+          #     memory: '256Mi' # Maximum memory the Pod can use
+          #     cpu: '500m' # Maximum CPU the Pod can use

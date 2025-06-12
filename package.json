@@ -6,7 +6,7 @@
     "test": "jest",
     "build": "tsc",
     "start": "node dist/server.js",
-    "start:dev": "nodemon",
+    "start:dev": "nodemon", 
     "build:docker": "docker build -t progression-fitness-backend .",
     "dev": "docker-compose up --build app",
     "start:docker": "docker-compose up --build app-prod",

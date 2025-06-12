@@ -10,7 +10,6 @@ const router = express.Router();
 // Create workouts
 router.post('/workouts', authUser, async (req, res, next) => {
   try {
-    console.log('workout', req.userData);
     // Validate request body
     const { date, name, client, program, workoutItems, personalWorkout } = req.body;
     // if (!name) {
@@ -34,7 +33,7 @@ router.post('/workouts', authUser, async (req, res, next) => {
 
     // Respond with success
     res.status(201).json({
-      message: 'Workout Added Successfully',
+      message: 'Workout Added Successfullyy',
       workoutId: createdWorkout._id,
     });
   } catch (error) {
@@ -78,6 +77,8 @@ router.post('/workoutResults', authUser, async (req, res, next) => {
 
 // Update workout by ID
 router.put('/:id', authUser, async (req, res, next) => {
+  console.log('workout', req.body);
+
   try {
     // Validate request body
     const { date, name, client, program, workoutItems, personalWorkout } = req.body;
@@ -95,7 +96,8 @@ router.put('/:id', authUser, async (req, res, next) => {
         client: client || null,
         program: program || null,
         workoutItems,
-        personalWorkout: personalWorkout === '1' ? '1' : '0',
+        // personalWorkout: personalWorkout === '1' ? '1' : '0',
+        personalWorkout
       },
       { new: true }, // Return the updated document
     );

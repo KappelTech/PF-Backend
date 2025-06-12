@@ -68,24 +68,29 @@ router.post('/find-user', findUserLimiter, async (req: Request, res: Response, n
 });
 
 router.post('/send-code', async (req, res) => {
+  
   try {
     const { email } = req.body;
 
-    const newUser = new User({ email });
-    const savedUser = await newUser.save();
+    // const newUser = new User({ email });
+  
+    // const savedUser = await newUser.save();
 
     const code = generateCode();
+    console.log('code:', code)
     await Token.create({
-      email: savedUser.email,
+      email: email,
       code: code,
       expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes from now
     });
-    sendEmail(savedUser.email, code);
+    sendEmail(email, code);
     return res.status(200).json({
-      message: 'User created, email sent',
-      user: savedUser,
+      message: 'Email sent',
+      // user: savedUser,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log(error)
+  }
 });
 
 // verify code with persons email // have the user create a password
@@ -102,22 +107,25 @@ router.post('/create-user', async (req, res, next) => {
     }
 
     // If token is valid, find the user
-    const user = await User.findOne({ email });
+    // const user = await User.findOne({ email });
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
-    }
+    // if (!user) {
+    //   return res.status(404).json({ message: 'User not found.' });
+    // }
 
     // Update user details
-    user.firstName = firstName;
-    user.lastName = lastName;
-    user.password = await bcrypt.hash(password, 10); // Hash the new password
-    user.active = true; // Ensure the user is active
+    const newUser = new User({
+      firstName,
+      lastName,
+      email,
+      password: await bcrypt.hash(password, 10),
+      active: true
+    })
 
-    await user.save();
+    const savedUser = await newUser.save();
 
     // Generate JWT
-    const tokenPayload = { email: user.email, userId: user._id }; // Include any additional user info as needed
+    const tokenPayload = { email: savedUser.email, userId: savedUser._id }; // Include any additional user info as needed
     const jwtToken = jwt.sign(tokenPayload, process.env.JWT_SECRET, { expiresIn: '1h' }); // Expires in 3600 seconds
 
     // Optionally, remove the token after verification
@@ -125,7 +133,7 @@ router.post('/create-user', async (req, res, next) => {
 
     return res
       .status(200)
-      .json({ message: 'User activated successfully.', user, token: jwtToken, expiresIn: 3600 });
+      .json({ message: 'User activated successfully.', user:savedUser, token: jwtToken, expiresIn: 3600 });
   } catch (error) {
     console.error('Error verifying token:', error);
     return res.status(500).json({ message: 'Internal Server Error' });
