@@ -327,7 +327,7 @@ const generateWorkout = async (userPreferences, selectedEquipment, duration) => 
         model: 'gpt-3.5-turbo',
         messages: [
           { role: 'system', content: 'You are a fitness coach that generates workout plans.' },
-          // `Generate a concise CrossFit-style "For Time" workout plan using the following equipment: ${selectedEquipment.join(', ')}. Please limit the response to 3 exercises and keep it brief.` }
+          // `Generate a concise varied CrossFit-style "For Time" workout plan using the following equipment: ${selectedEquipment.join(', ')}. Please limit the response to 3 exercises and keep it brief.` }
           {
             role: 'user',
             content: `Generate a concise CrossFit-style ${duration} duration ${userPreferences} workout with the following equipment: ${selectedEquipment.join(', ')}. Include only the workout exercises, without any warm-up or cool-down instructions.`,
